@@ -33,7 +33,7 @@ using Mono.Collections.Generic;
 
 namespace Mono.Cecil {
 
-	public class TypeReference : MemberReference, IGenericParameterProvider, IGenericContext {
+	public partial class TypeReference : MemberReference, IGenericParameterProvider, IGenericContext {
 
 		string @namespace;
 		bool value_type;

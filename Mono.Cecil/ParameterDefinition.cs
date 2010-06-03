@@ -30,7 +30,7 @@ using Mono.Collections.Generic;
 
 namespace Mono.Cecil {
 
-	public sealed class ParameterDefinition : ParameterReference, ICustomAttributeProvider, IConstantProvider, IMarshalInfoProvider {
+	public sealed partial class ParameterDefinition : ParameterReference, ICustomAttributeProvider, IConstantProvider, IMarshalInfoProvider {
 
 		ushort attributes;
 

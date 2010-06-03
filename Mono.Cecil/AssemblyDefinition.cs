@@ -33,7 +33,7 @@ using Mono.Collections.Generic;
 
 namespace Mono.Cecil {
 
-	public sealed class AssemblyDefinition : ICustomAttributeProvider, ISecurityDeclarationProvider {
+	public sealed partial class AssemblyDefinition : ICustomAttributeProvider, ISecurityDeclarationProvider {
 
 		AssemblyNameDefinition name;
 

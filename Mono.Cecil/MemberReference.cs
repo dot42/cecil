@@ -28,7 +28,7 @@
 
 namespace Mono.Cecil {
 
-	public abstract class MemberReference : IMetadataTokenProvider {
+	public abstract partial class MemberReference : IMetadataTokenProvider {
 
 		string name;
 		TypeReference declaring_type;
