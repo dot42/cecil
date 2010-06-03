@@ -574,18 +574,33 @@ namespace Mono.Cecil {
 			return Read (this, (_, reader) => reader.LookupToken (token));
 		}
 
-		internal TRet Read<TItem, TRet> (TItem item, Func<TItem, MetadataReader, TRet> read)
-		{
-			var position = reader.position;
-			var context = reader.context;
+	    private Thread readingThread = null;
 
-			var ret = read (item, reader);
+        internal TRet Read<TItem, TRet>(TItem item, Func<TItem, MetadataReader, TRet> read)
+        {
+            var current = Thread.CurrentThread;
+            var previous = Interlocked.Exchange(ref readingThread, current);
+            if ((previous != null) && (previous != current))
+            {
+                throw new InvalidOperationException("Read entered on different thread");
+            }
 
-			reader.position = position;
-			reader.context = context;
+            var position = reader.position;
+            var context = reader.context;
 
-			return ret;
-		}
+            var ret = read(item, reader);
+
+            reader.position = position;
+            reader.context = context;
+
+            var old = Interlocked.Exchange(ref readingThread, previous);
+            if (old != current)
+            {
+                throw new InvalidOperationException("Read exited on different thread");
+            }
+
+            return ret;
+        }
 
 		void ProcessDebugHeader ()
 		{
