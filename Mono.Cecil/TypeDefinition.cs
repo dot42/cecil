@@ -32,7 +32,7 @@ using Mono.Collections.Generic;
 
 namespace Mono.Cecil {
 
-	public sealed class TypeDefinition : TypeReference, IMemberDefinition, ISecurityDeclarationProvider {
+	public sealed partial class TypeDefinition : TypeReference, IMemberDefinition, ISecurityDeclarationProvider {
 
 		uint attributes;
 		TypeReference base_type;
