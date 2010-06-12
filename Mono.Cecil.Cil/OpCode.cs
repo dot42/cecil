@@ -118,9 +118,8 @@ namespace Mono.Cecil.Cil {
 			get { return OpCodeNames.names [Size == 1 ? Op2 : Op2 + 256]; }
 		}
 
-		public int Size {
-			get { return ((value & 0xff00) == 0xff00) ? 1 : 2; }
-		}
+	    public readonly int Size;
+	    public readonly int OperandSize;
 
 		public byte Op1 {
 			get { return (byte) (value >> 8); }
@@ -172,7 +171,44 @@ namespace Mono.Cecil.Cil {
 			this.stack_behavior_pop = (byte) ((y >> 16) & 0xff);
 			this.stack_behavior_push = (byte) ((y >> 24) & 0xff);
 
-			if (op1 == 0xff)
+		    this.Size = (op1 == 0xFF) ? 1 : 2;
+
+            switch ((OperandType)operand_type)
+            {
+                case OperandType.InlineSwitch:
+                    OperandSize = -1; // Depends on actual operand
+                    break;
+                case OperandType.InlineI8:
+                case OperandType.InlineR:
+                    OperandSize = 8;
+                    break;
+                case OperandType.InlineBrTarget:
+                case OperandType.InlineField:
+                case OperandType.InlineI:
+                case OperandType.InlineMethod:
+                case OperandType.InlineString:
+                case OperandType.InlineTok:
+                case OperandType.InlineType:
+                case OperandType.ShortInlineR:
+                case OperandType.InlineSig:
+                    OperandSize = 4;
+                    break;
+                case OperandType.InlineArg:
+                case OperandType.InlineVar:
+                    OperandSize = 2;
+                    break;
+                case OperandType.ShortInlineBrTarget:
+                case OperandType.ShortInlineI:
+                case OperandType.ShortInlineArg:
+                case OperandType.ShortInlineVar:
+                    OperandSize = 1;
+                    break;
+                default:
+                    OperandSize = 0;
+                    break;
+            }
+
+		    if (op1 == 0xff)
 				OpCodes.OneByteOpCode [op2] = this;
 			else
 				OpCodes.TwoBytesOpCode [op2] = this;
