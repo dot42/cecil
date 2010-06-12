@@ -118,8 +118,8 @@ namespace Mono.Cecil.Cil {
 			get { return OpCodeNames.names [Size == 1 ? Op2 : Op2 + 256]; }
 		}
 
-	    public readonly int Size;
-	    public readonly int OperandSize;
+	    public readonly byte Size;
+	    public readonly byte OperandSize;
 
 		public byte Op1 {
 			get { return (byte) (value >> 8); }
@@ -171,12 +171,12 @@ namespace Mono.Cecil.Cil {
 			this.stack_behavior_pop = (byte) ((y >> 16) & 0xff);
 			this.stack_behavior_push = (byte) ((y >> 24) & 0xff);
 
-		    this.Size = (op1 == 0xFF) ? 1 : 2;
+		    this.Size = (byte) ((op1 == 0xFF) ? 1 : 2);
 
             switch ((OperandType)operand_type)
             {
                 case OperandType.InlineSwitch:
-                    OperandSize = -1; // Depends on actual operand
+                    OperandSize = 0; // Depends on actual operand
                     break;
                 case OperandType.InlineI8:
                 case OperandType.InlineR:
