@@ -195,8 +195,12 @@ namespace Mono.Cecil.Rocks {
 				throw new ArgumentNullException ("self");
 
 			var method = self.Method;
-
-			foreach (var instruction in self.Instructions) {
+		    var instructions = self.Instructions;
+		    var count = instructions.Count;
+            
+			for (var k = 0; k < count; k++) 
+            {
+                var instruction = instructions[k];
 				int index;
 				switch (instruction.OpCode.Code) {
 				case Code.Ldarg:
@@ -329,7 +333,13 @@ namespace Mono.Cecil.Rocks {
 		{
 			ComputeOffsets (body);
 
-			foreach (var instruction in body.Instructions) {
+            var instructions = body.Instructions;
+		    var count = instructions.Count;
+            
+			for (var k = 0; k < count; k++) 
+            {
+                var instruction = instructions[k];
+
 				if (instruction.OpCode.OperandType != OperandType.InlineBrTarget)
 					continue;
 
@@ -395,7 +405,12 @@ namespace Mono.Cecil.Rocks {
 		static void ComputeOffsets (MethodBody body)
 		{
 			var offset = 0;
-			foreach (var instruction in body.Instructions) {
+            var instructions = body.Instructions;
+		    var count = instructions.Count;
+            
+			for (var k = 0; k < count; k++) 
+            {
+                var instruction = instructions[k];
 				instruction.Offset = offset;
 				offset += instruction.GetSize ();
 			}
