@@ -2241,12 +2241,10 @@ namespace Mono.Cecil {
 
 		public void WriteCustomAttributeConstructorArguments (CustomAttribute attribute)
 		{
-			var constructor = attribute.Constructor;
-			var arguments = attribute.ConstructorArguments;
-
-			if (!constructor.HasParameters)
+			if (!attribute.HasConstructorArguments)
 				return;
 
+			var arguments = attribute.ConstructorArguments;
 			var parameters = attribute.Constructor.Parameters;
 
 			if (parameters.Count != arguments.Count)
@@ -2481,44 +2479,46 @@ namespace Mono.Cecil {
 
 		public void WriteMarshalInfo (MarshalInfo marshal_info)
 		{
-			WriteNativeType (marshal_info.NativeType);
+			WriteNativeType (marshal_info.native);
 
-			switch (marshal_info.NativeType) {
+			switch (marshal_info.native) {
 			case NativeType.Array: {
 				var array = (ArrayMarshalInfo) marshal_info;
-				if (array.ElementType != NativeType.None)
-					WriteNativeType (array.ElementType);
-				if (array.SizeParameterIndex > -1)
-					WriteCompressedUInt32 ((uint) array.SizeParameterIndex);
-				if (array.Size > -1)
-					WriteCompressedUInt32 ((uint) array.Size);
+				if (array.element_type != NativeType.None)
+					WriteNativeType (array.element_type);
+				if (array.size_parameter_index > -1)
+					WriteCompressedUInt32 ((uint) array.size_parameter_index);
+				if (array.size > -1)
+					WriteCompressedUInt32 ((uint) array.size);
+				if (array.size_parameter_multiplier > -1)
+					WriteCompressedUInt32 ((uint) array.size_parameter_multiplier);
 				return;
 			}
 			case NativeType.SafeArray: {
 				var array = (SafeArrayMarshalInfo) marshal_info;
-				if (array.ElementType != VariantType.None)
-					WriteVariantType (array.ElementType);
+				if (array.element_type != VariantType.None)
+					WriteVariantType (array.element_type);
 				return;
 			}
 			case NativeType.FixedArray: {
 				var array = (FixedArrayMarshalInfo) marshal_info;
-				if (array.Size > -1)
-					WriteCompressedUInt32 ((uint) array.Size);
-				if (array.ElementType != NativeType.None)
-					WriteNativeType (array.ElementType);
+				if (array.size > -1)
+					WriteCompressedUInt32 ((uint) array.size);
+				if (array.element_type != NativeType.None)
+					WriteNativeType (array.element_type);
 				return;
 			}
 			case NativeType.FixedSysString:
 				var sys_string = (FixedSysStringMarshalInfo) marshal_info;
-				if (sys_string.Size > -1)
-					WriteCompressedUInt32 ((uint) sys_string.Size);
+				if (sys_string.size > -1)
+					WriteCompressedUInt32 ((uint) sys_string.size);
 				return;
 			case NativeType.CustomMarshaler:
 				var marshaler = (CustomMarshalInfo) marshal_info;
-				WriteUTF8String (marshaler.Guid != Guid.Empty ? marshaler.Guid.ToString () : string.Empty);
-				WriteUTF8String (marshaler.UnmanagedType);
-				WriteTypeReference (marshaler.ManagedType);
-				WriteUTF8String (marshaler.Cookie);
+				WriteUTF8String (marshaler.guid != Guid.Empty ? marshaler.guid.ToString () : string.Empty);
+				WriteUTF8String (marshaler.unmanaged_type);
+				WriteTypeReference (marshaler.managed_type);
+				WriteUTF8String (marshaler.cookie);
 				return;
 			}
 		}

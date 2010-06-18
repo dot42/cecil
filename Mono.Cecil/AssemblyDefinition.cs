@@ -47,6 +47,10 @@ namespace Mono.Cecil {
 			set { name = value; }
 		}
 
+		public string FullName {
+			get { return name != null ? name.FullName : string.Empty; }
+		}
+
 		public MetadataToken MetadataToken {
 			get { return new MetadataToken (TokenType.Assembly, 1); }
 			set { }
@@ -116,14 +120,20 @@ namespace Mono.Cecil {
 #if !READ_ONLY
 		public static AssemblyDefinition CreateAssembly (AssemblyNameDefinition assemblyName, string moduleName, ModuleKind kind)
 		{
+			return CreateAssembly (assemblyName, moduleName, new ModuleParameters { Kind = kind });
+		}
+
+		public static AssemblyDefinition CreateAssembly (AssemblyNameDefinition assemblyName, string moduleName, ModuleParameters parameters)
+		{
 			if (assemblyName == null)
 				throw new ArgumentNullException ("assemblyName");
 			if (moduleName == null)
 				throw new ArgumentNullException ("moduleName");
-			if (kind == ModuleKind.NetModule)
+			Mixin.CheckParameters (parameters);
+			if (parameters.Kind == ModuleKind.NetModule)
 				throw new ArgumentException ("kind");
 
-			var assembly = ModuleDefinition.CreateModule (moduleName, kind).Assembly;
+			var assembly = ModuleDefinition.CreateModule (moduleName, parameters).Assembly;
 			assembly.Name = assemblyName;
 
 			return assembly;
@@ -183,7 +193,7 @@ namespace Mono.Cecil {
 
 		public override string ToString ()
 		{
-			return name != null ? name.FullName : string.Empty;
+			return this.FullName;
 		}
 	}
 }

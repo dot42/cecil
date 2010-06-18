@@ -106,8 +106,8 @@ namespace Mono.Cecil.Cil {
 
 	public struct OpCode {
 
-		readonly short value;
-		readonly byte code;
+		readonly byte op1;
+		readonly byte op2;		readonly byte code;
 		readonly byte flow_control;
 		readonly byte opcode_type;
 		readonly byte operand_type;
@@ -115,22 +115,22 @@ namespace Mono.Cecil.Cil {
 		readonly byte stack_behavior_push;
 
 		public string Name {
-			get { return OpCodeNames.names [Size == 1 ? Op2 : Op2 + 256]; }
+			get { return OpCodeNames.names [op1 == 0xff ? op2 : op2 + 256]; }
 		}
 
 	    public readonly byte Size;
 	    public readonly byte OperandSize;
 
 		public byte Op1 {
-			get { return (byte) (value >> 8); }
+			get { return op1; }
 		}
 
 		public byte Op2 {
-			get { return (byte) value; }
+			get { return op2; }
 		}
 
 		public short Value {
-			get { return (Size == 1) ? Op2 : value; }
+			get { return (short) ((op1 << 8) | op2); }
 		}
 
 		public Code Code {
@@ -159,10 +159,8 @@ namespace Mono.Cecil.Cil {
 
 		internal OpCode (int x, int y)
 		{
-			var op1 = (byte) ((x >> 0) & 0xff);
-			var op2 = (byte) ((x >> 8) & 0xff);
-
-			this.value = (short) ((op1 << 8) | op2);
+			this.op1 = (byte) ((x >> 0) & 0xff);
+			this.op2 = (byte) ((x >> 8) & 0xff);
 			this.code = (byte) ((x >> 16) & 0xff);
 			this.flow_control = (byte) ((x >> 24) & 0xff);
 
@@ -208,7 +206,7 @@ namespace Mono.Cecil.Cil {
                     break;
             }
 
-		    if (op1 == 0xff)
+			if (op1 == 0xff)
 				OpCodes.OneByteOpCode [op2] = this;
 			else
 				OpCodes.TwoBytesOpCode [op2] = this;
@@ -216,7 +214,7 @@ namespace Mono.Cecil.Cil {
 
 		public override int GetHashCode ()
 		{
-			return value;
+			return Value;
 		}
 
 		public override bool Equals (object obj)
@@ -225,22 +223,22 @@ namespace Mono.Cecil.Cil {
 				return false;
 
 			var opcode = (OpCode) obj;
-			return opcode.value == value;
+			return op1 == opcode.op1 && op2 == opcode.op2;
 		}
 
 		public bool Equals (OpCode opcode)
 		{
-			return value == opcode.value;
+			return op1 == opcode.op1 && op2 == opcode.op2;
 		}
 
 		public static bool operator == (OpCode one, OpCode other)
 		{
-			return one.value == other.value;
+			return one.op1 == other.op1 && one.op2 == other.op2;
 		}
 
 		public static bool operator != (OpCode one, OpCode other)
 		{
-			return one.value != other.value;
+			return one.op1 != other.op1 || one.op2 != other.op2;
 		}
 
 		public override string ToString ()

@@ -99,6 +99,7 @@ namespace Mono.Cecil.Cil {
 			return size;
 		}
 
+
 		public override string ToString ()
 		{
 			var instruction = new StringBuilder ();
