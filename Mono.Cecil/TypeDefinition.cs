@@ -480,6 +480,7 @@ namespace Mono.Cecil {
 		}
 	}
 
+#if EXCLUDED_BY_TA
 	static partial class Mixin {
 
 		public static TypeReference GetEnumUnderlyingType (this TypeDefinition self)
@@ -511,4 +512,5 @@ namespace Mono.Cecil {
 			return null;
 		}
 	}
+#endif
 }
