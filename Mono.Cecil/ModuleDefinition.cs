@@ -27,6 +27,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using SR = System.Reflection;
 
@@ -259,22 +260,12 @@ namespace Mono.Cecil {
 
 #if !READ_ONLY
 		internal MetadataImporter MetadataImporter {
-			get {
-				if (importer == null)
-					importer = new MetadataImporter (this);
-
-				return importer;
-			}
+			get { return importer ?? (importer = new MetadataImporter (this)); }
 		}
 #endif
 
 		internal TypeSystem TypeSystem {
-			get {
-				if (type_system == null)
-					type_system = TypeSystem.CreateTypeSystem (this);
-
-				return type_system;
-			}
+			get { return type_system ?? (type_system = TypeSystem.CreateTypeSystem (this)); }
 		}
 
 		public bool HasAssemblyReferences {
@@ -282,10 +273,7 @@ namespace Mono.Cecil {
 				if (references != null)
 					return references.Count > 0;
 
-				if (HasImage)
-					return Image.HasTable (Table.AssemblyRef);
-
-				return false;
+				return HasImage && Image.HasTable (Table.AssemblyRef);
 			}
 		}
 
@@ -306,10 +294,7 @@ namespace Mono.Cecil {
 				if (modules != null)
 					return modules.Count > 0;
 
-				if (HasImage)
-					return Image.HasTable (Table.ModuleRef);
-
-				return false;
+				return HasImage && Image.HasTable (Table.ModuleRef);
 			}
 		}
 
@@ -359,12 +344,7 @@ namespace Mono.Cecil {
 		}
 
 		public Collection<CustomAttribute> CustomAttributes {
-			get {
-				if (custom_attributes != null)
-					return custom_attributes;
-
-				return custom_attributes = this.GetCustomAttributes (this);
-			}
+			get { return custom_attributes ?? (custom_attributes = this.GetCustomAttributes (this)); }
 		}
 
 		public bool HasTypes {
@@ -372,10 +352,7 @@ namespace Mono.Cecil {
 				if (types != null)
 					return types.Count > 0;
 
-				if (HasImage)
-					return Image.HasTable (Table.TypeDef);
-
-				return false;
+				return HasImage && Image.HasTable (Table.TypeDef);
 			}
 		}
 
@@ -396,10 +373,7 @@ namespace Mono.Cecil {
 				if (exported_types != null)
 					return exported_types.Count > 0;
 
-				if (HasImage)
-					return Image.HasTable (Table.ExportedType);
-
-				return false;
+				return HasImage && Image.HasTable (Table.ExportedType);
 			}
 		}
 
@@ -472,6 +446,16 @@ namespace Mono.Cecil {
 			return (type = Read (this, (_, reader) => reader.GetTypeReference (scope, fullName))) != null;
 		}
 
+		public IEnumerable<TypeReference> GetTypeReferences ()
+		{
+			return Read (this, (_, reader) => reader.GetTypeReferences ());
+		}
+
+		public IEnumerable<MemberReference> GetMemberReferences ()
+		{
+			return Read (this, (_, reader) => reader.GetMemberReferences ());
+		}
+
 		public TypeDefinition GetType (string fullName)
 		{
 			CheckFullName (fullName);
@@ -503,16 +487,15 @@ namespace Mono.Cecil {
 			var names = fullname.Split ('/');
 			var type = GetType (names [0]);
 
-			for (int i = 1; i < names.Length; i++) {
-				var nested_types = type.NestedTypes;
-				for (int j = 0; j < nested_types.Count; j++) {
-					var nested_type = nested_types [j];
-					if (nested_type.Name != names [i])
-						continue;
+			if (type == null)
+				return null;
 
-					type = nested_type;
-					break;
-				}
+			for (int i = 1; i < names.Length; i++) {
+				var nested_type = type.GetNestedType (names [i]);
+				if (nested_type == null)
+					return null;
+
+				type = nested_type;
 			}
 
 			return type;
@@ -567,7 +550,7 @@ namespace Mono.Cecil {
 		{
 			CheckType (type);
 
-			return MetadataImporter.ImportType (type, null, ImportGenericType.TypeDefinition);
+			return MetadataImporter.ImportType (type, null, ImportGenericKind.Definition);
 		}
 
 		public TypeReference Import (Type type, TypeReference context)
@@ -589,8 +572,8 @@ namespace Mono.Cecil {
 				type,
 				(IGenericContext) context,
 				context != null
-					? ImportGenericType.OpenType
-					: ImportGenericType.TypeDefinition);
+					? ImportGenericKind.Open
+					: ImportGenericKind.Definition);
 		}
 
 		public FieldReference Import (SR.FieldInfo field)
@@ -622,7 +605,7 @@ namespace Mono.Cecil {
 		{
 			CheckMethod (method);
 
-			return MetadataImporter.ImportMethod (method, null);
+			return MetadataImporter.ImportMethod (method, null, ImportGenericKind.Definition);
 		}
 
 		public MethodReference Import (SR.MethodBase method, TypeReference context)
@@ -640,7 +623,11 @@ namespace Mono.Cecil {
 			CheckMethod (method);
 			CheckContext (context, this);
 
-			return MetadataImporter.ImportMethod (method, (IGenericContext) context);
+			return MetadataImporter.ImportMethod (method,
+				(IGenericContext) context,
+				context != null
+					? ImportGenericKind.Open
+					: ImportGenericKind.Definition);
 		}
 #endif
 
