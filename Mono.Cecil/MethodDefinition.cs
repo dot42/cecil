@@ -75,6 +75,9 @@ namespace Mono.Cecil {
 
 		internal void ReadSemantics ()
 		{
+			if (sem_attrs.HasValue)
+				return;
+
 			var type = DeclaringType;
 			if (type == null)
 				return;

@@ -476,7 +476,7 @@ namespace Mono.Cecil {
 
 		public ModuleDefinition Populate (ModuleDefinition module)
 		{
-			if (MoveTo (Table.Module) != 1)
+			if (MoveTo (Table.Module) == 0)
 				return module;
 
 			Advance (2); // Generation
@@ -958,7 +958,9 @@ namespace Mono.Cecil {
 				return type;
 
 			type = ReadTypeReference (rid);
-			metadata.AddTypeReference (type);
+			if (type != null)
+				 metadata.AddTypeReference (type);
+
 			return type;
 		}
 
@@ -968,10 +970,18 @@ namespace Mono.Cecil {
 				return null;
 
 			TypeReference declaring_type = null;
-			var scope = ReadMetadataToken (CodedIndex.ResolutionScope);
+			IMetadataScope scope;
 
-			if (scope.TokenType == TokenType.TypeRef)
-				declaring_type = GetTypeDefOrRef (scope);
+			var scope_token = ReadMetadataToken (CodedIndex.ResolutionScope);
+
+			if (scope_token.TokenType == TokenType.TypeRef) {
+				declaring_type = GetTypeDefOrRef (scope_token);
+
+				scope = declaring_type != null
+					? declaring_type.Scope
+					: module;
+			} else
+				scope = GetTypeReferenceScope (scope_token);
 
 			var name = ReadString ();
 			var @namespace = ReadString ();
@@ -979,9 +989,7 @@ namespace Mono.Cecil {
 			var type = new TypeReference (
 				@namespace,
 				name,
-				declaring_type != null
-					? declaring_type.Scope
-					: GetTypeReferenceScope (scope));
+				scope);
 
 			type.DeclaringType = declaring_type;
 			type.token = new MetadataToken (TokenType.TypeRef, rid);
@@ -1479,7 +1487,7 @@ namespace Mono.Cecil {
 			return GetMember (type.Properties, token);
 		}
 
-		static TMember GetMember<TMember> (IList<TMember> members, MetadataToken token) where TMember : IMemberDefinition
+		static TMember GetMember<TMember> (Collection<TMember> members, MetadataToken token) where TMember : IMemberDefinition
 		{
 			for (int i = 0; i < members.Count; i++) {
 				var member = members [i];
@@ -1504,9 +1512,7 @@ namespace Mono.Cecil {
 				var method_rid = ReadTableIndex (Table.Method);
 				var association = ReadMetadataToken (CodedIndex.HasSemantics);
 
-				semantics.Add (
-					method_rid,
-					new Row<MethodSemanticsAttributes, MetadataToken> (attributes, association));
+				semantics [method_rid] = new Row<MethodSemanticsAttributes, MetadataToken> (attributes, association);
 			}
 		}
 
