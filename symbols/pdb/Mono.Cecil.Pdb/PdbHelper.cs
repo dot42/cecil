@@ -187,7 +187,7 @@ namespace Mono.Cecil.Pdb {
 	}
 }
 
-#if !NET_3_5 && !NET_4_0
+#if !NET_4_0 && !OBFUSCATOR
 
 namespace System.Runtime.CompilerServices {
 
