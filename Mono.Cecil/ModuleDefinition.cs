@@ -30,6 +30,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using SR = System.Reflection;
+using System.Threading;
 
 using Mono.Cecil.Cil;
 using Mono.Cecil.Metadata;
@@ -752,16 +753,22 @@ namespace Mono.Cecil {
 
             var position = reader.position;
             var context = reader.context;
+            TRet ret;
 
-            var ret = read(item, reader);
-
-            reader.position = position;
-            reader.context = context;
-
-            var old = Interlocked.Exchange(ref readingThread, previous);
-            if (old != current)
+            try
             {
-                throw new InvalidOperationException("Read exited on different thread");
+                ret = read(item, reader);
+            }
+            finally
+            {
+                reader.position = position;
+                reader.context = context;
+
+                var old = Interlocked.Exchange(ref readingThread, previous);
+                if (old != current)
+                {
+                    throw new InvalidOperationException("Read exited on different thread");
+                }
             }
 
             return ret;
