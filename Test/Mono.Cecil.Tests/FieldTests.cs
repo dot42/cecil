@@ -207,6 +207,16 @@ namespace Mono.Cecil.Tests {
 			Assert.IsNull (field.Constant);
 		}
 
+		[TestIL ("types.il")]
+		public void NullPrimitiveConstant (ModuleDefinition module)
+		{
+			var fields = module.GetType ("Fields");
+
+			var field = fields.GetField ("int32_nullref");
+			Assert.IsTrue (field.HasConstant);
+			Assert.AreEqual (null, field.Constant);
+		}
+
 		[TestCSharp ("Fields.cs")]
 		public void ArrayConstant (ModuleDefinition module)
 		{
@@ -216,6 +226,36 @@ namespace Mono.Cecil.Tests {
 			var field = panpan.GetField ("ints");
 			Assert.IsTrue (field.HasConstant);
 			Assert.IsNull (field.Constant);
+		}
+
+		[TestIL ("types.il")]
+		public void ConstantCoalescing (ModuleDefinition module)
+		{
+			var fields = module.GetType ("Fields");
+
+			var field = fields.GetField ("int32_int16");
+			Assert.AreEqual ("System.Int32", field.FieldType.FullName);
+			Assert.IsTrue (field.HasConstant);
+			Assert.IsInstanceOfType (typeof (short), field.Constant);
+			Assert.AreEqual ((short) 1, field.Constant);
+
+			field = fields.GetField ("int16_int32");
+			Assert.AreEqual ("System.Int16", field.FieldType.FullName);
+			Assert.IsTrue (field.HasConstant);
+			Assert.IsInstanceOfType (typeof (int), field.Constant);
+			Assert.AreEqual (1, field.Constant);
+
+			field = fields.GetField ("char_int16");
+			Assert.AreEqual ("System.Char", field.FieldType.FullName);
+			Assert.IsTrue (field.HasConstant);
+			Assert.IsInstanceOfType (typeof (short), field.Constant);
+			Assert.AreEqual ((short) 1, field.Constant);
+
+			field = fields.GetField ("int16_char");
+			Assert.AreEqual ("System.Int16", field.FieldType.FullName);
+			Assert.IsTrue (field.HasConstant);
+			Assert.IsInstanceOfType (typeof (char), field.Constant);
+			Assert.AreEqual ('s', field.Constant);
 		}
 
 		[TestCSharp ("Generics.cs")]

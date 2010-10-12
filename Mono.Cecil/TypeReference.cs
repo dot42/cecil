@@ -206,6 +206,17 @@ namespace Mono.Cecil {
 			}
 		}
 
+		public virtual MetadataType MetadataType {
+			get {
+				switch (etype) {
+				case ElementType.None:
+					return IsValueType ? MetadataType.ValueType : MetadataType.Class;
+				default:
+					return (MetadataType) etype;
+				}
+			}
+		}
+
 		protected TypeReference (string @namespace, string name)
 			: base (name)
 		{
@@ -213,14 +224,15 @@ namespace Mono.Cecil {
 			this.token = new MetadataToken (TokenType.TypeRef, 0);
 		}
 
-		public TypeReference (string @namespace, string name, IMetadataScope scope)
+		public TypeReference (string @namespace, string name, ModuleDefinition module, IMetadataScope scope)
 			: this (@namespace, name)
 		{
+			this.module = module;
 			this.scope = scope;
 		}
 
-		public TypeReference (string @namespace, string name, IMetadataScope scope, bool valueType) :
-			this (@namespace, name, scope)
+		public TypeReference (string @namespace, string name, ModuleDefinition module, IMetadataScope scope, bool valueType) :
+			this (@namespace, name, module, scope)
 		{
 			value_type = valueType;
 		}
@@ -261,6 +273,7 @@ namespace Mono.Cecil {
 			case ElementType.Pinned:
 			case ElementType.Ptr:
 			case ElementType.SzArray:
+			case ElementType.Sentinel:
 			case ElementType.Var:
 				return true;
 			}

@@ -1413,8 +1413,7 @@ namespace Mono.Cecil {
 				GetBlobIndex (GetMethodSignature (method)),
 				param_rid));
 
-			if (method.HasParameters)
-				AddParameters (method);
+			AddParameters (method);
 
 			if (method.HasGenericParameters)
 				AddGenericParameters (method);
@@ -1434,12 +1433,15 @@ namespace Mono.Cecil {
 
 		void AddParameters (MethodDefinition method)
 		{
-			var parameters = method.Parameters;
-
 			var return_parameter = method.MethodReturnType.parameter;
 
 			if (return_parameter != null && RequiresParameterRow (return_parameter))
 				AddParameter (0, return_parameter, param_table);
+
+			if (!method.HasParameters)
+				return;
+
+			var parameters = method.Parameters;
 
 			for (int i = 0; i < parameters.Count; i++) {
 				var parameter = parameters [i];
@@ -1617,6 +1619,9 @@ namespace Mono.Cecil {
 
 		static ElementType GetConstantType (TypeReference constant_type, object constant)
 		{
+			if (constant == null)
+				return ElementType.Class;
+
 			var etype = constant_type.etype;
 			switch (etype) {
 			case ElementType.None:
@@ -1626,19 +1631,13 @@ namespace Mono.Cecil {
 
 				return ElementType.Class;
 			case ElementType.String:
-				return constant != null ? ElementType.String : ElementType.Class;
+				return ElementType.String;
 			case ElementType.Object:
-				if (constant != null)
-					return GetConstantType (constant.GetType ());
-
-				return ElementType.Class;
+				return GetConstantType (constant.GetType ());
 			case ElementType.Array:
 			case ElementType.SzArray:
 			case ElementType.MVar:
 			case ElementType.Var:
-				if (constant != null)
-					throw new ArgumentException ();
-
 				return ElementType.Class;
 			case ElementType.GenericInst:
 			case ElementType.CModOpt:
@@ -1646,6 +1645,21 @@ namespace Mono.Cecil {
 			case ElementType.ByRef:
 			case ElementType.Sentinel:
 				return GetConstantType (((TypeSpecification) constant_type).ElementType, constant);
+			case ElementType.Boolean:
+			case ElementType.Char:
+			case ElementType.I:
+			case ElementType.I1:
+			case ElementType.I2:
+			case ElementType.I4:
+			case ElementType.I8:
+			case ElementType.U:
+			case ElementType.U1:
+			case ElementType.U2:
+			case ElementType.U4:
+			case ElementType.U8:
+			case ElementType.R4:
+			case ElementType.R8:
+				return GetConstantType (constant.GetType ());
 			default:
 				return etype;
 			}
@@ -1891,7 +1905,7 @@ namespace Mono.Cecil {
 				signature.WriteConstantString ((string) value);
 				break;
 			default:
-				signature.WriteConstantPrimitive (type, value);
+				signature.WriteConstantPrimitive (value);
 				break;
 			}
 
@@ -2003,9 +2017,7 @@ namespace Mono.Cecil {
 
 		public void WriteMethodSignature (IMethodSignature method)
 		{
-			byte calling_convention = 0;
-			if (method.IsVarArg ())
-				calling_convention |= 0x5;
+			byte calling_convention = (byte) method.CallingConvention;
 			if (method.HasThis)
 				calling_convention |= 0x20;
 			if (method.ExplicitThis)
@@ -2200,9 +2212,9 @@ namespace Mono.Cecil {
 			WriteBytes (Encoding.Unicode.GetBytes (value));
 		}
 
-		public void WriteConstantPrimitive (ElementType type, object value)
+		public void WriteConstantPrimitive (object value)
 		{
-			WritePrimitiveValue (type, value);
+			WritePrimitiveValue (value);
 		}
 
 		public void WriteCustomAttributeConstructorArguments (CustomAttribute attribute)
@@ -2285,52 +2297,55 @@ namespace Mono.Cecil {
 					WriteCustomAttributeEnumValue (type, value);
 				break;
 			default:
-				WritePrimitiveValue (etype, value);
+				WritePrimitiveValue (value);
 				break;
 			}
 		}
 
-		void WritePrimitiveValue (ElementType type, object value)
+		void WritePrimitiveValue (object value)
 		{
-			switch (type) {
-			case ElementType.Boolean:
+			if (value == null)
+				throw new ArgumentNullException ();
+
+			switch (Type.GetTypeCode (value.GetType ())) {
+			case TypeCode.Boolean:
 				WriteByte ((byte) (((bool) value) ? 1 : 0));
 				break;
-			case ElementType.U1:
+			case TypeCode.Byte:
 				WriteByte ((byte) value);
 				break;
-			case ElementType.I1:
-				WriteByte ((byte) (sbyte) value);
+			case TypeCode.SByte:
+				WriteSByte ((sbyte) value);
 				break;
-			case ElementType.I2:
+			case TypeCode.Int16:
 				WriteInt16 ((short) value);
 				break;
-			case ElementType.U2:
+			case TypeCode.UInt16:
 				WriteUInt16 ((ushort) value);
 				break;
-			case ElementType.Char:
+			case TypeCode.Char:
 				WriteInt16 ((short) (char) value);
 				break;
-			case ElementType.I4:
+			case TypeCode.Int32:
 				WriteInt32 ((int) value);
 				break;
-			case ElementType.U4:
+			case TypeCode.UInt32:
 				WriteUInt32 ((uint) value);
 				break;
-			case ElementType.R4:
+			case TypeCode.Single:
 				WriteSingle ((float) value);
 				break;
-			case ElementType.I8:
+			case TypeCode.Int64:
 				WriteInt64 ((long) value);
 				break;
-			case ElementType.U8:
+			case TypeCode.UInt64:
 				WriteUInt64 ((ulong) value);
 				break;
-			case ElementType.R8:
+			case TypeCode.Double:
 				WriteDouble ((double) value);
 				break;
 			default:
-				throw new NotSupportedException (type.ToString ());
+				throw new NotSupportedException (value.GetType ().FullName);
 			}
 		}
 
