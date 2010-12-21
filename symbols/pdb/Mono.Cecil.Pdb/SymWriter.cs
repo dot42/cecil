@@ -34,6 +34,8 @@ using System.Runtime.InteropServices;
 using Mono.Cecil.Cil;
 using Mono.Collections.Generic;
 
+#if !READ_ONLY
+
 namespace Mono.Cecil.Pdb
 {
 	internal class SymWriter
@@ -168,3 +170,5 @@ namespace Mono.Cecil.Pdb
 		}
 	}
 }
+
+#endif
