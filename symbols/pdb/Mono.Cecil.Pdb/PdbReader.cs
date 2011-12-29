@@ -83,7 +83,7 @@ namespace Mono.Cecil.Pdb {
 				| (bytes [start + 3] << 24));
 		}
 
-		bool PopulateFunctions ()
+	    internal /*TA*/ bool PopulateFunctions ()
 		{
 			using (pdb_file) {
 				int age;

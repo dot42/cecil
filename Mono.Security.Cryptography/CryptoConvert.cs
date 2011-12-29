@@ -28,7 +28,9 @@
 //
 
 using System;
+using System.Globalization;
 using System.Security.Cryptography;
+using System.Text;
 
 #if !(SILVERLIGHT || READ_ONLY)
 
@@ -237,7 +239,51 @@ namespace Mono.Security.Cryptography {
 			}
 			throw new CryptographicException ("Unknown blob format.");
 		}
-	}
+
+#region // Added by TA
+        static public string ToHex(byte[] input)
+        {
+            if (input == null)
+                return null;
+
+            StringBuilder sb = new StringBuilder(input.Length * 2);
+            foreach (byte b in input)
+            {
+                sb.Append(b.ToString("X2", CultureInfo.InvariantCulture));
+            }
+            return sb.ToString();
+        }
+
+        static private byte FromHexChar(char c)
+        {
+            if ((c >= 'a') && (c <= 'f'))
+                return (byte)(c - 'a' + 10);
+            if ((c >= 'A') && (c <= 'F'))
+                return (byte)(c - 'A' + 10);
+            if ((c >= '0') && (c <= '9'))
+                return (byte)(c - '0');
+            throw new ArgumentException("invalid hex char");
+        }
+
+        static public byte[] FromHex(string hex)
+        {
+            if (hex == null)
+                return null;
+            if ((hex.Length & 0x1) == 0x1)
+                throw new ArgumentException("Length must be a multiple of 2");
+
+            byte[] result = new byte[hex.Length >> 1];
+            int n = 0;
+            int i = 0;
+            while (n < result.Length)
+            {
+                result[n] = (byte)(FromHexChar(hex[i++]) << 4);
+                result[n++] += FromHexChar(hex[i++]);
+            }
+            return result;
+        }
+#endregion // Added by TA
+    }
 }
 
 #endif

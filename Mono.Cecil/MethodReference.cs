@@ -33,7 +33,7 @@ using Mono.Collections.Generic;
 
 namespace Mono.Cecil {
 
-	public class MethodReference : MemberReference, IMethodSignature, IGenericParameterProvider, IGenericContext {
+	public /*TA*/ partial class MethodReference : MemberReference, IMethodSignature, IGenericParameterProvider, IGenericContext {
 
 		internal ParameterDefinitionCollection parameters;
 		MethodReturnType return_type;
