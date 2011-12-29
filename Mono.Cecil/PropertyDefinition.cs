@@ -32,7 +32,7 @@ using Mono.Collections.Generic;
 
 namespace Mono.Cecil {
 
-	public sealed class PropertyDefinition : PropertyReference, IMemberDefinition, IConstantProvider {
+	public sealed partial /*TA*/ class PropertyDefinition : PropertyReference, IMemberDefinition, IConstantProvider {
 
 		bool? has_this;
 		ushort attributes;

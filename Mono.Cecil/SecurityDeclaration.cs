@@ -94,7 +94,7 @@ namespace Mono.Cecil {
 
 		readonly internal uint signature;
 		byte [] blob;
-		readonly ModuleDefinition module;
+	    internal readonly ModuleDefinition module;
 
 		internal bool resolved;
 		SecurityAction action;

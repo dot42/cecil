@@ -30,7 +30,7 @@ using Mono.Collections.Generic;
 
 namespace Mono.Cecil {
 
-	public sealed class EventDefinition : EventReference, IMemberDefinition {
+	public sealed partial /*TA*/ class EventDefinition : EventReference, IMemberDefinition {
 
 		ushort attributes;
 
