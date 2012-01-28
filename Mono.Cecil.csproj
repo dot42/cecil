@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">net_4_0_Debug</Configuration>
@@ -19,7 +19,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\net_2_0_Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;EXCLUDED_BY_TA</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
@@ -28,7 +28,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\net_2_0_Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;EXCLUDED_BY_TA</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
@@ -38,7 +38,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\net_3_5_Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;NET_3_5</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;EXCLUDED_BY_TA</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
@@ -47,7 +47,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\net_3_5_Release\</OutputPath>
-    <DefineConstants>TRACE;NET_3_5</DefineConstants>
+    <DefineConstants>TRACE;EXCLUDED_BY_TA</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
@@ -57,7 +57,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\net_4_0_Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;NET_3_5;NET_4_0</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;EXCLUDED_BY_TA</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
@@ -66,7 +66,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\net_4_0_Release\</OutputPath>
-    <DefineConstants>TRACE;NET_3_5;NET_4_0</DefineConstants>
+    <DefineConstants>TRACE;EXCLUDED_BY_TA</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
@@ -76,7 +76,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\silverlight_Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;NET_3_5;NET_4_0;SILVERLIGHT</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;EXCLUDED_BY_TA</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TargetFrameworkIdentifier>Silverlight</TargetFrameworkIdentifier>
@@ -86,7 +86,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\silverlight_Release\</OutputPath>
-    <DefineConstants>TRACE;NET_3_5;NET_4_0;SILVERLIGHT</DefineConstants>
+    <DefineConstants>TRACE;EXCLUDED_BY_TA</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TargetFrameworkIdentifier>Silverlight</TargetFrameworkIdentifier>
@@ -97,7 +97,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\winphone_Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;NET_3_5;NET_4_0;SILVERLIGHT;CF</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;EXCLUDED_BY_TA</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TargetFrameworkProfile>WindowsPhone</TargetFrameworkProfile>
@@ -108,12 +108,15 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\winphone_Release\</OutputPath>
-    <DefineConstants>TRACE;NET_3_5;NET_4_0;SILVERLIGHT;CF</DefineConstants>
+    <DefineConstants>TRACE;EXCLUDED_BY_TA</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TargetFrameworkProfile>WindowsPhone</TargetFrameworkProfile>
     <TargetFrameworkIdentifier>Silverlight</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DefineConstants>EXCLUDED_BY_TA</DefineConstants>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFrameworkVersion)' != 'v2.0' ">
     <Reference Include="System.Core" />
@@ -168,6 +171,8 @@
     <Compile Include="Mono.Cecil\AssemblyWriter.cs" />
     <Compile Include="Mono.Cecil\BaseAssemblyResolver.cs" />
     <Compile Include="Mono.Cecil\CallSite.cs" />
+    <Compile Include="Mono.Cecil\CallSiteMethodReference.cs" />
+    <Compile Include="Mono.Cecil\FunctionPointerTypeMethodReference.cs" />
     <Compile Include="Mono.Cecil\TypeParser.cs" />
     <Compile Include="Mono.Cecil\Import.cs" />
     <Compile Include="Mono.Collections.Generic\Collection.cs" />
