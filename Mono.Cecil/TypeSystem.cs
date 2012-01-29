@@ -41,7 +41,12 @@ namespace Mono.Cecil {
 			{
 			}
 
-			internal override TypeReference LookupType (string @namespace, string name)
+#if EXCLUDED_BY_TA
+            public 
+#else
+			internal 
+#endif
+                override TypeReference LookupType (string @namespace, string name)
 			{
 				var metadata = module.MetadataSystem;
 				if (metadata.Types == null)
@@ -78,7 +83,12 @@ namespace Mono.Cecil {
 			{
 			}
 
-			internal override TypeReference LookupType (string @namespace, string name)
+#if EXCLUDED_BY_TA
+            public 
+#else
+			internal 
+#endif
+                override TypeReference LookupType (string @namespace, string name)
 			{
 				return CreateTypeReference (@namespace, name);
 			}
@@ -151,7 +161,10 @@ namespace Mono.Cecil {
 		TypeReference type_string;
 		TypeReference type_typedref;
 
-		TypeSystem (ModuleDefinition module)
+#if EXCLUDED_BY_TA
+		public 
+#endif
+            TypeSystem (ModuleDefinition module)
 		{
 			this.module = module;
 		}
@@ -164,7 +177,12 @@ namespace Mono.Cecil {
 			return new CommonTypeSystem (module);
 		}
 
-		internal abstract TypeReference LookupType (string @namespace, string name);
+#if EXCLUDED_BY_TA
+        public 
+#else
+        internal 
+#endif
+        abstract TypeReference LookupType (string @namespace, string name);
 
 		TypeReference LookupSystemType (string name, ElementType element_type)
 		{
