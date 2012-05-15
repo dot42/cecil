@@ -284,7 +284,7 @@ namespace Mono.Cecil {
 #endif
 
 		public IAssemblyResolver AssemblyResolver {
-			get { return assembly_resolver ?? (assembly_resolver = new DefaultAssemblyResolver ()); }
+			get { return assembly_resolver; }
 		}
 
 		public IMetadataResolver MetadataResolver {

@@ -62,6 +62,11 @@ namespace Mono.Cecil {
 			this.reader = reader;
 		}
 
+        internal void SetData(byte[] data)
+        {
+            this.data = data;
+        }
+
 		public Stream GetResourceStream ()
 		{
 			if (stream != null)

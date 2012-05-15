@@ -27,7 +27,7 @@
 //
 
 using System;
-
+using System.Linq;
 using Mono.Cecil.Metadata;
 
 namespace Mono.Cecil {
@@ -69,7 +69,7 @@ namespace Mono.Cecil {
 			}
 		}
 
-		sealed class CommonTypeSystem : TypeSystem {
+		class CommonTypeSystem : TypeSystem {
 
 			AssemblyNameReference corlib;
 
@@ -83,7 +83,7 @@ namespace Mono.Cecil {
 				return CreateTypeReference (@namespace, name);
 			}
 
-			public AssemblyNameReference GetCorlibReference ()
+			public virtual AssemblyNameReference GetCorlibReference ()
 			{
 				if (corlib != null)
 					return corlib;
@@ -130,6 +130,60 @@ namespace Mono.Cecil {
 			}
 		}
 
+        sealed class WinRtTypeSystem : CommonTypeSystem
+        {
+            AssemblyNameReference corlib;
+
+            public WinRtTypeSystem(ModuleDefinition module)
+                : base(module)
+            {
+            }
+
+            public override AssemblyNameReference GetCorlibReference()
+            {
+                if (corlib != null)
+                    return corlib;
+
+                const string mscorlib = "System.Runtime";
+
+                var references = module.AssemblyReferences;
+
+                for (int i = 0; i < references.Count; i++)
+                {
+                    var reference = references[i];
+                    if (reference.Name == mscorlib)
+                        return corlib = reference;
+                }
+
+                corlib = new AssemblyNameReference
+                {
+                    Name = mscorlib,
+                    Version = GetCorlibVersion(),
+                    PublicKeyToken = new byte[] { 0xb0, 0x3f, 0x5f, 0x7f, 0x11, 0xd5, 0x0a, 0x3a },
+                };
+
+                references.Add(corlib);
+
+                return corlib;
+            }
+
+            Version GetCorlibVersion()
+            {
+                switch (module.Runtime)
+                {
+                    case TargetRuntime.Net_1_0:
+                    case TargetRuntime.Net_1_1:
+                        return new Version(1, 0, 0, 0);
+                    case TargetRuntime.Net_2_0:
+                        return new Version(2, 0, 0, 0);
+                    case TargetRuntime.Net_4_0:
+                        return new Version(4, 0, 0, 0);
+                    default:
+                        throw new NotSupportedException();
+                }
+            }
+        }
+
 		readonly ModuleDefinition module;
 
 		TypeReference type_object;
@@ -160,6 +214,8 @@ namespace Mono.Cecil {
 		{
 			if (module.IsCorlib ())
 				return new CorlibTypeSystem (module);
+            if (module.AssemblyReferences.Any(x => x.IsWindowsRuntime))
+                return new WinRtTypeSystem(module);
 
 			return new CommonTypeSystem (module);
 		}

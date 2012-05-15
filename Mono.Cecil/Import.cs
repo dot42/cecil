@@ -362,7 +362,7 @@ namespace Mono.Cecil {
 			return reference;
 		}
 
-		IMetadataScope ImportScope (IMetadataScope scope)
+		internal /*TA*/ IMetadataScope ImportScope (IMetadataScope scope)
 		{
 			switch (scope.MetadataScopeType) {
 			case MetadataScopeType.AssemblyNameReference:
@@ -381,6 +381,10 @@ namespace Mono.Cecil {
 			AssemblyNameReference reference;
 			if (TryGetAssemblyNameReference (name, out reference))
 				return reference;
+
+            // TA: Added for winrt support.
+            if (name.Name == "mscorlib")
+                return (AssemblyNameReference) module.TypeSystem.Corlib;
 
 			reference = new AssemblyNameReference (name.Name, name.Version) {
 				Culture = name.Culture,
