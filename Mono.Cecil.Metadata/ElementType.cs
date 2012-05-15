@@ -28,7 +28,13 @@
 
 namespace Mono.Cecil.Metadata {
 
-	enum ElementType : byte {
+#if EXCLUDED_BY_TA
+    public
+#else
+        internal
+#endif
+ enum ElementType : byte
+    {
 		None = 0x00,
 		Void = 0x01,
 		Boolean = 0x02,

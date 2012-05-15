@@ -8,7 +8,7 @@
     <ProjectGuid>{13F162A6-BB55-40B6-BB77-22D5C0B4A386}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>TallApplications</RootNamespace>
-    <AssemblyName>Mono.Cecil</AssemblyName>
+    <AssemblyName>Cecil</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -17,7 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;EXCLUDED_BY_TA</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;EXCLUDED_BY_TA;NET_4_0</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -25,7 +25,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;EXCLUDED_BY_TA</DefineConstants>
+    <DefineConstants>TRACE;EXCLUDED_BY_TA;NET_4_0</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>

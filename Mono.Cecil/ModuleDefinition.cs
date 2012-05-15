@@ -293,6 +293,9 @@ namespace Mono.Cecil {
 
 		public TypeSystem TypeSystem {
 			get { return type_system ?? (type_system = TypeSystem.CreateTypeSystem (this)); }
+#if EXCLUDED_BY_TA
+            set { type_system = value;  }
+#endif
 		}
 
 		public bool HasAssemblyReferences {
