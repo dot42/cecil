@@ -28,7 +28,7 @@
 
 namespace Mono.Cecil.Cil {
 
-	public sealed class VariableDefinition : VariableReference {
+	public sealed partial /*TA*/ class VariableDefinition : VariableReference {
 
 		public bool IsPinned {
 			get { return variable_type.IsPinned; }

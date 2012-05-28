@@ -106,7 +106,7 @@ namespace Mono.Cecil {
 				return;
 
 			var scope = type.scope;
-			if (scope == null || scope.MetadataScopeType != MetadataScopeType.AssemblyNameReference || scope.Name != "mscorlib")
+			if (scope == null || scope.MetadataScopeType != MetadataScopeType.AssemblyNameReference || ((scope.Name != "mscorlib") && (scope.Name != "System.Runtime")))
 				return;
 
 			Row<ElementType, bool> primitive_data;
