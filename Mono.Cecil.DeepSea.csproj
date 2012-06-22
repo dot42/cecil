@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Dot42\IReachableContext.cs" />
+    <Compile Include="Dot42\ITypeVisitor.cs" />
     <Compile Include="Dot42\MemberReference.Partial.cs" />
     <Compile Include="Mono.Cecil.Cil\Code.cs" />
     <Compile Include="Mono.Cecil.Cil\CodeReader.cs" />
