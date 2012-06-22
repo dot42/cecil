@@ -13,5 +13,10 @@ namespace Dot42.Cecil
         /// Walk over the given member to marks its children reachable.
         /// </summary>
         void Walk(MemberReference member);
+
+        /// <summary>
+        /// Called every time a new reachable member is detected.
+        /// </summary>
+        void NewReachableDetected();
     }
 }

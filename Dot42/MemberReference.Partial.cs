@@ -26,6 +26,8 @@ namespace Mono.Cecil
             // Mark it reachable
             if (Interlocked.Exchange(ref reachable, 1) == 0)
             {
+                context.NewReachableDetected();
+
                 // Member was not yet walked, do it now unless its a type that is not in the project
                 if (ShouldWalk(context, this))
                 {
