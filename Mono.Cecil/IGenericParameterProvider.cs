@@ -45,6 +45,9 @@ namespace Mono.Cecil {
 		Method
 	}
 
+#if EXCLUDED_BY_TA
+    public
+#endif
 	interface IGenericContext {
 
 		bool IsDefinition { get; }
