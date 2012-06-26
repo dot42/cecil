@@ -27,26 +27,30 @@
 //
 
 using System;
-using System.Linq;
+
 using Mono.Cecil.Metadata;
 
 namespace Mono.Cecil {
 
 	public abstract class TypeSystem {
 
-		sealed class CorlibTypeSystem : TypeSystem {
+		sealed class CoreTypeSystem : TypeSystem {
 
-			public CorlibTypeSystem (ModuleDefinition module)
+			public CoreTypeSystem (ModuleDefinition module)
 				: base (module)
 			{
 			}
 
-#if EXCLUDED_BY_TA
-            public 
-#else
-			internal 
-#endif
-                override TypeReference LookupType (string @namespace, string name)
+			internal override TypeReference LookupType (string @namespace, string name)
+			{
+				var type = LookupTypeDefinition (@namespace, name) ?? LookupTypeForwarded (@namespace, name);
+				if (type != null)
+					return type;
+
+				throw new NotSupportedException ();
+			}
+
+			TypeReference LookupTypeDefinition (string @namespace, string name)
 			{
 				var metadata = module.MetadataSystem;
 				if (metadata.Types == null)
@@ -69,12 +73,28 @@ namespace Mono.Cecil {
 				});
 			}
 
+			TypeReference LookupTypeForwarded (string @namespace, string name)
+			{
+				if (!module.HasExportedTypes)
+					return null;
+
+				var exported_types = module.ExportedTypes;
+				for (int i = 0; i < exported_types.Count; i++) {
+					var exported_type = exported_types [i];
+
+					if (exported_type.Name == name && exported_type.Namespace == @namespace)
+						return exported_type.CreateReference ();
+				}
+
+				return null;
+			}
+
 			static void Initialize (object obj)
 			{
 			}
 		}
 
-		class CommonTypeSystem : TypeSystem {
+		sealed class CommonTypeSystem : TypeSystem {
 
 			AssemblyNameReference corlib;
 
@@ -83,17 +103,12 @@ namespace Mono.Cecil {
 			{
 			}
 
-#if EXCLUDED_BY_TA
-            public 
-#else
-			internal 
-#endif
-                override TypeReference LookupType (string @namespace, string name)
+			internal override TypeReference LookupType (string @namespace, string name)
 			{
 				return CreateTypeReference (@namespace, name);
 			}
 
-			public virtual AssemblyNameReference GetCorlibReference ()
+			public AssemblyNameReference GetCorlibReference ()
 			{
 				if (corlib != null)
 					return corlib;
@@ -140,60 +155,6 @@ namespace Mono.Cecil {
 			}
 		}
 
-        sealed class WinRtTypeSystem : CommonTypeSystem
-        {
-            AssemblyNameReference corlib;
-
-            public WinRtTypeSystem(ModuleDefinition module)
-                : base(module)
-            {
-            }
-
-            public override AssemblyNameReference GetCorlibReference()
-            {
-                if (corlib != null)
-                    return corlib;
-
-                const string mscorlib = "System.Runtime";
-
-                var references = module.AssemblyReferences;
-
-                for (int i = 0; i < references.Count; i++)
-                {
-                    var reference = references[i];
-                    if (reference.Name == mscorlib)
-                        return corlib = reference;
-                }
-
-                corlib = new AssemblyNameReference
-                {
-                    Name = mscorlib,
-                    Version = GetCorlibVersion(),
-                    PublicKeyToken = new byte[] { 0xb0, 0x3f, 0x5f, 0x7f, 0x11, 0xd5, 0x0a, 0x3a },
-                };
-
-                references.Add(corlib);
-
-                return corlib;
-            }
-
-            Version GetCorlibVersion()
-            {
-                switch (module.Runtime)
-                {
-                    case TargetRuntime.Net_1_0:
-                    case TargetRuntime.Net_1_1:
-                        return new Version(1, 0, 0, 0);
-                    case TargetRuntime.Net_2_0:
-                        return new Version(2, 0, 0, 0);
-                    case TargetRuntime.Net_4_0:
-                        return new Version(4, 0, 0, 0);
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
-        }
-
 		readonly ModuleDefinition module;
 
 		TypeReference type_object;
@@ -215,10 +176,7 @@ namespace Mono.Cecil {
 		TypeReference type_string;
 		TypeReference type_typedref;
 
-#if EXCLUDED_BY_TA
-		public 
-#endif
-            TypeSystem (ModuleDefinition module)
+		TypeSystem (ModuleDefinition module)
 		{
 			this.module = module;
 		}
@@ -226,19 +184,12 @@ namespace Mono.Cecil {
 		internal static TypeSystem CreateTypeSystem (ModuleDefinition module)
 		{
 			if (module.IsCorlib ())
-				return new CorlibTypeSystem (module);
-            if (module.AssemblyReferences.Any(x => x.IsWindowsRuntime))
-                return new WinRtTypeSystem(module);
+				return new CoreTypeSystem (module);
 
 			return new CommonTypeSystem (module);
 		}
 
-#if EXCLUDED_BY_TA
-        public 
-#else
-        internal 
-#endif
-        abstract TypeReference LookupType (string @namespace, string name);
+		internal abstract TypeReference LookupType (string @namespace, string name);
 
 		TypeReference LookupSystemType (string name, ElementType element_type)
 		{
