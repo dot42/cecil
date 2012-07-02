@@ -345,6 +345,7 @@ namespace Mono.Cecil.PE {
 
 			var version = ReadZeroTerminatedString (ReadInt32 ());
 			image.Runtime = version.ParseRuntime ();
+		    image.RuntimeVersion = version;
 
 			// Flags		2
 			Advance (2);

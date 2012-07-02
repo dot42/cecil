@@ -239,6 +239,8 @@ namespace Mono.Cecil {
 			set { runtime = value; }
 		}
 
+        public string RuntimeVersion { get; set; }
+
 		public TargetArchitecture Architecture {
 			get { return architecture; }
 			set { architecture = value; }
@@ -450,6 +452,7 @@ namespace Mono.Cecil {
 			this.Image = image;
 			this.kind = image.Kind;
 			this.runtime = image.Runtime;
+		    this.RuntimeVersion = image.RuntimeVersion;
 			this.architecture = image.Architecture;
 			this.attributes = image.Attributes;
 			this.characteristics = image.Characteristics;
