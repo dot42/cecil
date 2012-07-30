@@ -1093,25 +1093,29 @@ namespace Mono.Cecil {
 		public bool HasInterfaces (TypeDefinition type)
 		{
 			InitializeInterfaces ();
-			MetadataToken [] mapping;
+            Row<MetadataToken, MetadataToken>[] mapping;
 
 			return metadata.TryGetInterfaceMapping (type, out mapping);
 		}
 
-		public Collection<TypeReference> ReadInterfaces (TypeDefinition type)
+		public Collection<InterfaceImpl> ReadInterfaces (TypeDefinition type)
 		{
 			InitializeInterfaces ();
-			MetadataToken [] mapping;
+            Row<MetadataToken, MetadataToken>[] mapping;
 
 			if (!metadata.TryGetInterfaceMapping (type, out mapping))
-				return new Collection<TypeReference> ();
+				return new Collection<InterfaceImpl> ();
 
-			var interfaces = new Collection<TypeReference> (mapping.Length);
+			var interfaces = new Collection<InterfaceImpl> (mapping.Length);
 
 			this.context = type;
 
 			for (int i = 0; i < mapping.Length; i++)
-				interfaces.Add (GetTypeDefOrRef (mapping [i]));
+			{
+			    var m = mapping[i];
+                var interfaceImpl = new InterfaceImpl(GetTypeDefOrRef(m.Col2)) { MetadataToken = m.Col1 };
+			    interfaces.Add (interfaceImpl);
+			}
 
 			metadata.RemoveInterfaceMapping (type);
 
@@ -1125,19 +1129,20 @@ namespace Mono.Cecil {
 
 			int length = MoveTo (Table.InterfaceImpl);
 
-			metadata.Interfaces = new Dictionary<uint, MetadataToken []> (length);
+			metadata.Interfaces = new Dictionary<uint, Row<MetadataToken, MetadataToken> []> (length);
 
 			for (int i = 0; i < length; i++) {
 				var type = ReadTableIndex (Table.TypeDef);
 				var @interface = ReadMetadataToken (CodedIndex.TypeDefOrRef);
 
-				AddInterfaceMapping (type, @interface);
+				AddInterfaceMapping (type, i, @interface);
 			}
 		}
 
-		void AddInterfaceMapping (uint type, MetadataToken @interface)
+		void AddInterfaceMapping (uint type, int interfaceImplRid, MetadataToken @interface)
 		{
-			metadata.SetInterfaceMapping (type, AddMapping (metadata.Interfaces, type, @interface));
+            var implToken = new MetadataToken(TokenType.InterfaceImpl, interfaceImplRid);
+			metadata.SetInterfaceMapping (type, AddMapping (metadata.Interfaces, type, new Row<MetadataToken, MetadataToken>(implToken, @interface)));
 		}
 
 		public Collection<FieldDefinition> ReadFields (TypeDefinition type)
