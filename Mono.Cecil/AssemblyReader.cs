@@ -1135,7 +1135,7 @@ namespace Mono.Cecil {
 				var type = ReadTableIndex (Table.TypeDef);
 				var @interface = ReadMetadataToken (CodedIndex.TypeDefOrRef);
 
-				AddInterfaceMapping (type, i, @interface);
+				AddInterfaceMapping (type, i + 1, @interface);
 			}
 		}
 
