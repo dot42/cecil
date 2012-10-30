@@ -494,6 +494,8 @@ namespace Mono.Cecil.PE {
 
 		string GetVersion ()
 		{
+            if (module.RuntimeVersion != null)
+                return module.RuntimeVersion;
 			switch (module.Runtime) {
 			case TargetRuntime.Net_1_0:
 				return "v1.0.3705";
@@ -733,9 +735,10 @@ namespace Mono.Cecil.PE {
 
 		int GetMetadataHeaderLength ()
 		{
+		    var versionLength = GetZeroTerminatedString(GetVersion()).Length;
 			return
 				// MetadataHeader
-				40
+				(40 - 12) + versionLength
 				// #~ header
 				+ 12
 				// #Strings header

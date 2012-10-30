@@ -716,6 +716,7 @@ namespace Mono.Cecil {
 		RID param_rid = 1;
 		RID property_rid = 1;
 		RID event_rid = 1;
+        RID intfImpl_rid = 1;
 
 		readonly TypeRefTable type_ref_table;
 		readonly TypeDefTable type_def_table;
@@ -1091,6 +1092,9 @@ namespace Mono.Cecil {
 
 			if (type.HasNestedTypes)
 				AttachNestedTypesDefToken (type);
+
+            if (type.HasInterfaces)
+                AttachInterfaceImplToken(type);
 		}
 
 		void AttachNestedTypesDefToken (TypeDefinition type)
@@ -1100,13 +1104,21 @@ namespace Mono.Cecil {
 				AttachTypeDefToken (nested_types [i]);
 		}
 
-		void AttachFieldsDefToken (TypeDefinition type)
+		void AttachInterfaceImplToken (TypeDefinition type)
 		{
-			var fields = type.Fields;
-			type.fields_range.Length = (uint) fields.Count;
-			for (int i = 0; i < fields.Count; i++)
-				fields [i].token = new MetadataToken (TokenType.Field, field_rid++);
+			var intfImpls = type.Interfaces;
+			//type.fields_range.Length = (uint) fields.Count;
+			for (int i = 0; i < intfImpls.Count; i++)
+                intfImpls[i].MetadataToken = new MetadataToken(TokenType.InterfaceImpl, intfImpl_rid++);
 		}
+
+        void AttachFieldsDefToken(TypeDefinition type)
+        {
+            var fields = type.Fields;
+            type.fields_range.Length = (uint)fields.Count;
+            for (int i = 0; i < fields.Count; i++)
+                fields[i].token = new MetadataToken(TokenType.Field, field_rid++);
+        }
 
 		void AttachMethodsDefToken (TypeDefinition type)
 		{
@@ -1322,11 +1334,19 @@ namespace Mono.Cecil {
 			var interfaces = type.Interfaces;
 			var type_rid = type.token.RID;
 
-			for (int i = 0; i < interfaces.Count; i++)
-				iface_impl_table.AddRow (new InterfaceImplRow (
-					type_rid,
-					MakeCodedRID (GetTypeToken (interfaces [i]), CodedIndex.TypeDefOrRef)));
+            for (int i = 0; i < interfaces.Count; i++)
+            {
+                AddInterfaceImpl(type_rid, interfaces[i]);
+            }
 		}
+
+        void AddInterfaceImpl(BlobIndex type_rid, InterfaceImpl intfImpl)
+        {
+            iface_impl_table.AddRow(new InterfaceImplRow(type_rid, MakeCodedRID(GetTypeToken(intfImpl.Interface), CodedIndex.TypeDefOrRef)));            
+
+            if (intfImpl.HasCustomAttributes) 
+                AddCustomAttributes(intfImpl);
+        }
 
 		void AddLayoutInfo (TypeDefinition type)
 		{
