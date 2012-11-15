@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dot42\AssemblyInfo.cs" />
     <Compile Include="Dot42\IReachableContext.cs" />
     <Compile Include="Dot42\ITypeVisitor.cs" />
     <Compile Include="Dot42\MemberReference.Partial.cs" />
