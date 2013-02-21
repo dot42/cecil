@@ -45,9 +45,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dot42\AssemblyInfo.cs" />
     <Compile Include="Dot42\IReachableContext.cs" />
     <Compile Include="Dot42\ITypeVisitor.cs" />
     <Compile Include="Dot42\MemberReference.Partial.cs" />
+    <Compile Include="Dot42\SymbolHelper.cs" />
     <Compile Include="Mono.Cecil.Cil\Code.cs" />
     <Compile Include="Mono.Cecil.Cil\CodeReader.cs" />
     <Compile Include="Mono.Cecil.Cil\CodeWriter.cs" />
@@ -125,6 +127,7 @@
     <Compile Include="Mono.Cecil\IMetadataTokenProvider.cs" />
     <Compile Include="Mono.Cecil\IMethodSignature.cs" />
     <Compile Include="Mono.Cecil\Import.cs" />
+    <Compile Include="Mono.Cecil\InterfaceImpl.cs" />
     <Compile Include="Mono.Cecil\LinkedResource.cs" />
     <Compile Include="Mono.Cecil\ManifestResourceAttributes.cs" />
     <Compile Include="Mono.Cecil\MarshalInfo.cs" />
