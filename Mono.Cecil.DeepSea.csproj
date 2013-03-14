@@ -211,6 +211,7 @@
     <Compile Include="symbols\pdb\Microsoft.Cci.Pdb\PdbScope.cs" />
     <Compile Include="symbols\pdb\Microsoft.Cci.Pdb\PdbSlot.cs" />
     <Compile Include="symbols\pdb\Microsoft.Cci.Pdb\PdbSource.cs" />
+    <Compile Include="symbols\pdb\Microsoft.Cci.Pdb\PdbTokenLine.cs" />
     <Compile Include="symbols\pdb\Microsoft.Cci.Pdb\SourceLocationProvider.cs" />
     <Compile Include="symbols\pdb\Mono.Cecil.Pdb\ISymUnmanagedDocumentWriter.cs" />
     <Compile Include="symbols\pdb\Mono.Cecil.Pdb\ISymUnmanagedWriter2.cs" />
