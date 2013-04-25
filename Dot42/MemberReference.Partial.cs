@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.ComponentModel;
+using System.Threading;
 using Dot42.Cecil;
 
 namespace Mono.Cecil
@@ -37,6 +38,20 @@ namespace Mono.Cecil
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Mark this type not reachable. 
+        /// USE WITH CARE
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void SetNotReachable()
+        {
+            // Already reachable?
+            if (reachable == 0) { return; }
+
+            // Mark it not reachable
+            Interlocked.Exchange(ref reachable, 0);
         }
 
         /// <summary>
