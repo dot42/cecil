@@ -1,6 +1,6 @@
 ﻿using Mono.Cecil.Pdb;
 
-namespace TallApplications.Dot42
+namespace TallComponents.Dot42
 {
     public static class SymbolHelper
     {
