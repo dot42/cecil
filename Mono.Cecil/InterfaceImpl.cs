@@ -50,7 +50,7 @@ namespace Mono.Cecil
         /// </summary>
         public Collection<CustomAttribute> CustomAttributes
         {
-            get { return custom_attributes ?? (custom_attributes = this.GetCustomAttributes(@interface.Module)); }
+            get { return custom_attributes ?? (this.GetCustomAttributes(ref custom_attributes, @interface.Module)); }
         }
     }
 }

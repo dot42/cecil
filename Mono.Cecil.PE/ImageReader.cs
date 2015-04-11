@@ -343,9 +343,7 @@ namespace Mono.Cecil.PE {
 			// Reserved				4
 			Advance (8);
 
-			var version = ReadZeroTerminatedString (ReadInt32 ());
-			image.Runtime = version.ParseRuntime ();
-		    image.RuntimeVersion = version;
+			image.RuntimeVersion = ReadZeroTerminatedString (ReadInt32 ());
 
 			// Flags		2
 			Advance (2);
@@ -598,6 +596,8 @@ namespace Mono.Cecil.PE {
 						+ GetTableIndexSize (Table.Field);	// Field
 					break;
 				case Table.EncLog:
+					size = 8;
+					break;
 				case Table.EncMap:
 					size = 4;
 					break;
