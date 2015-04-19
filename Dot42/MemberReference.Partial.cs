@@ -10,22 +10,34 @@ namespace Mono.Cecil
     partial class MemberReference
     {
         private int reachable = 0; // No bool is used since we're using Interlocked.Exchange.
+        private int usedInSerialization = 0;
 
         /// <summary>
         /// Is this item reachable?
         /// </summary>
         public bool IsReachable { get { return (reachable != 0); } }
 
+        public bool IsUsedInSerialization { get { return (usedInSerialization != 0); } }
+
         /// <summary>
         /// Mark this type reachable.
         /// </summary>
-        public void SetReachable(IReachableContext context)
+        public void SetReachable(IReachableContext context, bool useInSerialization = false)
         {
             // Already reachable?
-            if (reachable != 0) { return; }
+            if (reachable != 0 && (!useInSerialization || usedInSerialization != 0)) { return; }
 
+            if (useInSerialization)
+            {
+                if (useInSerialization)
+                {
+                }
+            }
             // Mark it reachable
-            if (Interlocked.Exchange(ref reachable, 1) == 0)
+            bool reachableChanged = Interlocked.Exchange(ref reachable, 1) == 0;
+            bool serializationChanged = useInSerialization && Interlocked.Exchange(ref usedInSerialization, 1) == 0;
+
+            if (reachableChanged || serializationChanged)
             {
                 if (context != null)
                 {
