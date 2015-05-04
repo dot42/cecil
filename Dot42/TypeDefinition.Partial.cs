@@ -9,5 +9,7 @@
         /// Is this type used in a Nullable(T) construct?
         /// </summary>
         public bool UsedInNullableT { get; set; }
+
+        public TypeReference[] CachedImplementedInterfaces;
     }
 }
