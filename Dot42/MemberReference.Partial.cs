@@ -27,12 +27,6 @@ namespace Mono.Cecil
             // Already reachable?
             if (reachable != 0 && (!useInSerialization || usedInSerialization != 0)) { return; }
 
-            if (useInSerialization)
-            {
-                if (useInSerialization)
-                {
-                }
-            }
             // Mark it reachable
             bool reachableChanged = Interlocked.Exchange(ref reachable, 1) == 0;
             bool serializationChanged = useInSerialization && Interlocked.Exchange(ref usedInSerialization, 1) == 0;
