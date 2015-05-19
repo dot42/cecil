@@ -34,7 +34,7 @@ using Mono.Cecil.Metadata;
 
 namespace Mono.Cecil {
 
-	public sealed class GenericParameter : TypeReference, ICustomAttributeProvider {
+	public sealed partial class GenericParameter : TypeReference, ICustomAttributeProvider {
 
 		internal int position;
 		internal GenericParameterType type;

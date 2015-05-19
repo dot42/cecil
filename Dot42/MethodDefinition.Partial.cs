@@ -9,6 +9,12 @@ namespace Mono.Cecil
 
         public string OriginalName { get { return originalName ?? Name; } }
 
+        /// <summary>
+        /// True if any normal parameters of the method have 
+        /// a [SerializedParameter] attribute.
+        /// </summary>
+        public bool? HasSerializedParameters { get; set; }
+
         public MethodAttributes OriginalAttributes
         {
             get { return originalAttributes == -1 ? Attributes : (MethodAttributes)originalAttributes; }
