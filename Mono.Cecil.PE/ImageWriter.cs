@@ -49,7 +49,7 @@ namespace Mono.Cecil.PE {
 
 		ByteBuffer win32_resources;
 
-		const uint pe_header_size = 0x178u;
+		const uint pe_header_size = 0x98u;
 		const uint section_header_size = 0x28u;
 		const uint file_alignment = 0x200;
 		const uint section_alignment = 0x2000;
@@ -189,6 +189,11 @@ namespace Mono.Cecil.PE {
 			});
 		}
 
+		ushort SizeOfOptionalHeader ()
+		{
+			return (ushort) (!pe64 ? 0xe0 : 0xf0);
+		}
+
 		void WritePEFileHeader ()
 		{
 			WriteUInt32 (0x00004550);		// Magic
@@ -197,7 +202,7 @@ namespace Mono.Cecil.PE {
 			WriteUInt32 (time_stamp);
 			WriteUInt32 (0);	// PointerToSymbolTable
 			WriteUInt32 (0);	// NumberOfSymbols
-			WriteUInt16 ((ushort) (!pe64 ? 0xe0 : 0xf0));	// SizeOfOptionalHeader
+			WriteUInt16 (SizeOfOptionalHeader ());	// SizeOfOptionalHeader
 
 			// ExecutableImage | (pe64 ? 32BitsMachine : LargeAddressAware)
 			var characteristics = (ushort) (0x0002 | (!pe64 ? 0x0100 : 0x0020));
@@ -396,9 +401,32 @@ namespace Mono.Cecil.PE {
 				WriteUInt64 (rva);
 		}
 
+		void PrepareSection (Section section)
+		{
+			MoveTo (section.PointerToRawData);
+
+			const int buffer_size = 4096;
+
+			if (section.SizeOfRawData <= buffer_size) {
+				Write (new byte [section.SizeOfRawData]);
+				MoveTo (section.PointerToRawData);
+				return;
+			}
+
+			var written = 0;
+			var buffer = new byte [buffer_size];
+			while (written != section.SizeOfRawData) {
+				var write_size = System.Math.Min((int) section.SizeOfRawData - written, buffer_size);
+				Write (buffer, 0, write_size);
+				written += write_size;
+			}
+
+			MoveTo (section.PointerToRawData);
+		}
+
 		void WriteText ()
 		{
-			MoveTo (text.PointerToRawData);
+			PrepareSection (text);
 
 			// ImportAddressTable
 
@@ -481,7 +509,7 @@ namespace Mono.Cecil.PE {
 			WriteUInt16 (1);	// MinorVersion
 			WriteUInt32 (0);	// Reserved
 
-			var version = GetZeroTerminatedString (GetVersion ());
+			var version = GetZeroTerminatedString (module.runtime_version);
 			WriteUInt32 ((uint) version.Length);
 			WriteBytes (version);
 			WriteUInt16 (0);	// Flags
@@ -494,23 +522,6 @@ namespace Mono.Cecil.PE {
 			WriteStreamHeader (ref offset, TextSegment.UserStringHeap, "#US");
 			WriteStreamHeader (ref offset, TextSegment.GuidHeap, "#GUID");
 			WriteStreamHeader (ref offset, TextSegment.BlobHeap, "#Blob");
-		}
-
-		string GetVersion ()
-		{
-            if (module.RuntimeVersion != null)
-                return module.RuntimeVersion;
-			switch (module.Runtime) {
-			case TargetRuntime.Net_1_0:
-				return "v1.0.3705";
-			case TargetRuntime.Net_1_1:
-				return "v1.1.4322";
-			case TargetRuntime.Net_2_0:
-				return "v2.0.50727";
-			case TargetRuntime.Net_4_0:
-			default:
-				return "v4.0.30319";
-			}
 		}
 
 		ushort GetStreamCount ()
@@ -635,13 +646,13 @@ namespace Mono.Cecil.PE {
 
 		void WriteRsrc ()
 		{
-			MoveTo (rsrc.PointerToRawData);
+			PrepareSection (rsrc);
 			WriteBuffer (win32_resources);
 		}
 
 		void WriteReloc ()
 		{
-			MoveTo (reloc.PointerToRawData);
+			PrepareSection (reloc);
 
 			var reloc_rva = text_map.GetRVA (TextSegment.StartupStub);
 			reloc_rva += module.Architecture == TargetArchitecture.IA64 ? 0x20u : 2;
@@ -657,8 +668,6 @@ namespace Mono.Cecil.PE {
 			default:
 				throw new NotSupportedException();
 			}
-
-			WriteBytes (new byte [file_alignment - reloc.VirtualSize]);
 		}
 
 		public void WriteImage ()
@@ -755,6 +764,24 @@ namespace Mono.Cecil.PE {
 				+ (metadata.blob_heap.IsEmpty ? 0 : 16);
 		}
 
+        string GetVersion()
+        {
+            if (module.RuntimeVersion != null)
+                return module.RuntimeVersion;
+            switch (module.Runtime)
+            {
+                case TargetRuntime.Net_1_0:
+                    return "v1.0.3705";
+                case TargetRuntime.Net_1_1:
+                    return "v1.1.4322";
+                case TargetRuntime.Net_2_0:
+                    return "v2.0.50727";
+                case TargetRuntime.Net_4_0:
+                default:
+                    return "v4.0.30319";
+            }
+        }
+
 		int GetStrongNameLength ()
 		{
 			if (module.Assembly == null)
@@ -784,7 +811,7 @@ namespace Mono.Cecil.PE {
 
 		public uint GetHeaderSize ()
 		{
-			return pe_header_size + (sections * section_header_size);
+			return pe_header_size + SizeOfOptionalHeader () + (sections * section_header_size);
 		}
 
 		void PatchWin32Resources (ByteBuffer resources)

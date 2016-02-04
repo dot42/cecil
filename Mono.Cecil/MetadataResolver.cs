@@ -57,9 +57,26 @@ namespace Mono.Cecil {
 			get { return member; }
 		}
 
+		public IMetadataScope Scope {
+			get {
+				var type = member as TypeReference;
+				if (type != null)
+					return type.Scope;
+
+				var declaring_type = member.DeclaringType;
+				if (declaring_type != null)
+					return declaring_type.Scope;
+
+				throw new NotSupportedException ();
+			}
+		}
+
 		public ResolutionException (MemberReference member)
 			: base ("Failed to resolve " + member.FullName)
 		{
+			if (member == null)
+				throw new ArgumentNullException ("member");
+
 			this.member = member;
 		}
 
@@ -97,6 +114,10 @@ namespace Mono.Cecil {
 			type = type.GetElementType ();
 
 			var scope = type.Scope;
+
+			if (scope == null)
+				return null;
+
 			switch (scope.MetadataScopeType) {
 			case MetadataScopeType.AssemblyNameReference:
 				var assembly = assembly_resolver.Resolve ((AssemblyNameReference) scope);
@@ -154,7 +175,7 @@ namespace Mono.Cecil {
 			if (declaring_type == null)
 				return null;
 
-			return declaring_type.GetNestedType (type.Name);
+			return declaring_type.GetNestedType (type.TypeFullName ());
 		}
 
 		public virtual FieldDefinition Resolve (FieldReference field)

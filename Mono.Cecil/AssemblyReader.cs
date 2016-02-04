@@ -78,15 +78,18 @@ namespace Mono.Cecil {
 
 		public static ModuleDefinition CreateModuleFrom (Image image, ReaderParameters parameters)
 		{
-			var module = ReadModule (image, parameters);
-
-			ReadSymbols (module, parameters);
+			var reader = CreateModuleReader (image, parameters.ReadingMode);
+			var module = reader.module;
 
 			if (parameters.AssemblyResolver != null)
 				module.assembly_resolver = parameters.AssemblyResolver;
 
 			if (parameters.MetadataResolver != null)
 				module.metadata_resolver = parameters.MetadataResolver;
+
+			reader.ReadModule ();
+
+			ReadSymbols (module, parameters);
 
 			return module;
 		}
@@ -107,13 +110,6 @@ namespace Mono.Cecil {
 
 				module.ReadSymbols (reader);
 			}
-		}
-
-		static ModuleDefinition ReadModule (Image image, ReaderParameters parameters)
-		{
-			var reader = CreateModuleReader (image, parameters.ReadingMode);
-			reader.ReadModule ();
-			return reader.module;
 		}
 
 		static ModuleReader CreateModuleReader (Image image, ReadingMode mode)
@@ -165,7 +161,7 @@ namespace Mono.Cecil {
 				return;
 
 			if (assembly.HasCustomAttributes)
-				Read (assembly.CustomAttributes);
+				ReadCustomAttributes (assembly);
 			if (assembly.HasSecurityDeclarations)
 				Read (assembly.SecurityDeclarations);
 		}
@@ -218,21 +214,36 @@ namespace Mono.Cecil {
 				if (parameter.HasConstraints)
 					Read (parameter.Constraints);
 
-				if (parameter.HasCustomAttributes)
-					Read (parameter.CustomAttributes);
+				ReadCustomAttributes (parameter);
 			}
 		}
 
 		static void ReadSecurityDeclarations (ISecurityDeclarationProvider provider)
 		{
-			if (provider.HasSecurityDeclarations)
-				Read (provider.SecurityDeclarations);
+			if (!provider.HasSecurityDeclarations)
+				return;
+
+			var security_declarations = provider.SecurityDeclarations;
+
+			for (int i = 0; i < security_declarations.Count; i++) {
+				var security_declaration = security_declarations [i];
+
+				Read (security_declaration.SecurityAttributes);
+			}
 		}
 
 		static void ReadCustomAttributes (ICustomAttributeProvider provider)
 		{
-			if (provider.HasCustomAttributes)
-				Read (provider.CustomAttributes);
+			if (!provider.HasCustomAttributes)
+				return;
+
+			var custom_attributes = provider.CustomAttributes;
+
+			for (int i = 0; i < custom_attributes.Count; i++) {
+				var custom_attribute = custom_attributes [i];
+
+				Read (custom_attribute.ConstructorArguments);
+			}
 		}
 
 		static void ReadFields (TypeDefinition type)
@@ -1045,18 +1056,29 @@ namespace Mono.Cecil {
 
 		IMetadataScope GetTypeReferenceScope (MetadataToken scope)
 		{
+			if (scope.TokenType == TokenType.Module)
+				return module;
+
+			IMetadataScope[] scopes;
+
 			switch (scope.TokenType) {
 			case TokenType.AssemblyRef:
 				InitializeAssemblyReferences ();
-				return metadata.AssemblyReferences [(int) scope.RID - 1];
+				scopes = metadata.AssemblyReferences;
+				break;
 			case TokenType.ModuleRef:
 				InitializeModuleReferences ();
-				return metadata.ModuleReferences [(int) scope.RID - 1];
-			case TokenType.Module:
-				return module;
+				scopes = metadata.ModuleReferences;
+				break;
 			default:
 				throw new NotSupportedException ();
 			}
+
+			var index = scope.RID - 1;
+			if (index < 0 || index >= scopes.Length)
+				return null;
+
+			return scopes [index];
 		}
 
 		public IEnumerable<TypeReference> GetTypeReferences ()
@@ -1268,8 +1290,8 @@ namespace Mono.Cecil {
 			case ElementType.CModReqD:
 				return GetFieldTypeSize (((IModifierType) type).ElementType);
 			default:
-				var field_type = type.CheckedResolve ();
-				if (field_type.HasLayoutInfo)
+				var field_type = type.Resolve ();
+				if (field_type != null && field_type.HasLayoutInfo)
 					size = field_type.ClassSize;
 
 				break;
@@ -1616,10 +1638,11 @@ namespace Mono.Cecil {
 			var methods = type.Methods;
 			for (int i = 0; i < methods.Count; i++) {
 				var method = methods [i];
-				if (method.sem_attrs.HasValue)
+				if (method.sem_attrs_ready)
 					continue;
 
 				method.sem_attrs = ReadMethodSemantics (method);
+				method.sem_attrs_ready = true;
 			}
 		}
 

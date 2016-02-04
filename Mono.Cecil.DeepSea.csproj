@@ -41,6 +41,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Dot42\AssemblyInfo.cs" />
+    <Compile Include="Dot42\GenericParameter.Partial.cs" />
+    <Compile Include="Dot42\ParameterDefinition.Partial.cs" />
+    <Compile Include="Dot42\FieldDefinition.Partial.cs" />
+    <Compile Include="Dot42\MethodDefinition.Partial.cs" />
     <Compile Include="Dot42\TypeDefinition.Partial.cs" />
     <Compile Include="Dot42\IReachableContext.cs" />
     <Compile Include="Dot42\ITypeVisitor.cs" />

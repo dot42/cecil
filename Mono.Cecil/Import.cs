@@ -466,6 +466,7 @@ namespace Mono.Cecil {
 			case MetadataScopeType.AssemblyNameReference:
 				return ImportAssemblyName ((AssemblyNameReference) scope);
 			case MetadataScopeType.ModuleDefinition:
+				if (scope == module) return scope;
 				return ImportAssemblyName (((ModuleDefinition) scope).Assembly.Name);
 			case MetadataScopeType.ModuleReference:
 				throw new NotImplementedException ();
@@ -487,6 +488,7 @@ namespace Mono.Cecil {
 			reference = new AssemblyNameReference (name.Name, name.Version) {
 				Culture = name.Culture,
 				HashAlgorithm = name.HashAlgorithm,
+				IsRetargetable = name.IsRetargetable
 			};
 
 			var pk_token = !name.PublicKeyToken.IsNullOrEmpty ()
@@ -589,9 +591,13 @@ namespace Mono.Cecil {
 				return imported_instance;
 			case ElementType.Var:
 				var var_parameter = (GenericParameter) type;
-				return context.TypeParameter (type.DeclaringType.FullName, var_parameter.Position);
+				if (var_parameter.DeclaringType == null)
+					throw new InvalidOperationException ();
+				return context.TypeParameter (var_parameter.DeclaringType.FullName, var_parameter.Position);
 			case ElementType.MVar:
 				var mvar_parameter = (GenericParameter) type;
+				if (mvar_parameter.DeclaringMethod == null)
+					throw new InvalidOperationException ();
 				return context.MethodParameter (mvar_parameter.DeclaringMethod.Name, mvar_parameter.Position);
 			}
 
