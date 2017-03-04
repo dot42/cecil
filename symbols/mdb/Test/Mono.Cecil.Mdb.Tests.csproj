@@ -21,11 +21,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Mono.Cecil.Tests\MdbTests.cs" />
+    <Compile Include="Mono.Cecil.Tests\*.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\assemblies\hello.exe" />
-    <Content Include="Resources\assemblies\hello.exe.mdb" />
+    <None Include="Resources\**\*" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\..\..\Mono.Cecil.Tests.props" />
+  <Import Project="$(MSBuildCSharpTargets)" />
 </Project>

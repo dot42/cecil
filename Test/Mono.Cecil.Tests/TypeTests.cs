@@ -43,8 +43,9 @@ namespace Mono.Cecil.Tests {
 
 				Assert.AreEqual (2, interfaces.Count);
 
-				Assert.AreEqual ("IBar", interfaces [0].FullName);
-				Assert.AreEqual ("IFoo", interfaces [1].FullName);
+				// Mono's ilasm and .NET's are ordering interfaces differently
+				Assert.IsNotNull (interfaces.Single (i => i.InterfaceType.FullName == "IBar"));
+				Assert.IsNotNull (interfaces.Single (i => i.InterfaceType.FullName == "IFoo"));
 			});
 		}
 
@@ -180,7 +181,7 @@ namespace Mono.Cecil.Tests {
 				var type = module.GetType ("Program");
 				var iface = type.Interfaces [0];
 
-				var instance = (GenericInstanceType) iface;
+				var instance = (GenericInstanceType) iface.InterfaceType;
 				var owner = instance.ElementType;
 
 				Assert.AreEqual (1, instance.GenericArguments.Count);
@@ -249,6 +250,15 @@ namespace Mono.Cecil.Tests {
 				Assert.AreEqual (0, fptr.Parameters [0].Sequence);
 				Assert.AreEqual (1, fptr.Parameters [1].Sequence);
 			}, verify: false);
+		}
+
+		[Test]
+		public void DeferredCorlibTypeDef ()
+		{
+			var module = ModuleDefinition.ReadModule (typeof (object).Assembly.Location, new ReaderParameters (ReadingMode.Deferred));
+			var object_type = module.TypeSystem.Object;
+
+			Assert.IsInstanceOf<TypeDefinition> (object_type);
 		}
 	}
 }

@@ -9,15 +9,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\ProjectInfo.cs" />
-    <Compile Include="Mono.Cecil.Rocks\AssemblyInfo.cs" />
-    <Compile Include="Mono.Cecil.Rocks\MethodDefinitionRocks.cs" />
-    <Compile Include="Mono.Cecil.Rocks\SecurityDeclarationRocks.cs" />
-    <Compile Include="Mono.Cecil.Rocks\MethodBodyRocks.cs" />
-    <Compile Include="Mono.Cecil.Rocks\ILParser.cs" />
-    <Compile Include="Mono.Cecil.Rocks\TypeReferenceRocks.cs" />
-    <Compile Include="Mono.Cecil.Rocks\Functional.cs" />
-    <Compile Include="Mono.Cecil.Rocks\ModuleDefinitionRocks.cs" />
-    <Compile Include="Mono.Cecil.Rocks\TypeDefinitionRocks.cs" />
+    <Compile Include="Mono.Cecil.Rocks\*.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Mono.Cecil.csproj">
@@ -25,5 +17,6 @@
       <Name>Mono.Cecil</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\Mono.Cecil.props" />
+  <Import Project="$(MSBuildCSharpTargets)" />
 </Project>

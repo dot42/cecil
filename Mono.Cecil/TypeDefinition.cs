@@ -1,29 +1,11 @@
 //
-// TypeDefinition.cs
-//
 // Author:
 //   Jb Evain (jbevain@gmail.com)
 //
-// Copyright (c) 2008 - 2011 Jb Evain
+// Copyright (c) 2008 - 2015 Jb Evain
+// Copyright (c) 2008 - 2011 Novell, Inc.
 //
-// Permission is hereby granted, free of charge, to any person obtaining
-// a copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to
-// permit persons to whom the Software is furnished to do so, subject to
-// the following conditions:
-//
-// The above copyright notice and this permission notice shall be
-// included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Licensed under the MIT/X11 license.
 //
 
 using System;
@@ -43,7 +25,7 @@ namespace Mono.Cecil {
 		short packing_size = Mixin.NotResolvedMarker;
 		int class_size = Mixin.NotResolvedMarker;
 
-		Collection<InterfaceImpl> interfaces;
+		InterfaceImplementationCollection interfaces;
 		Collection<TypeDefinition> nested_types;
 		Collection<MethodDefinition> methods;
 		Collection<FieldDefinition> fields;
@@ -54,12 +36,27 @@ namespace Mono.Cecil {
 
 		public TypeAttributes Attributes {
 			get { return (TypeAttributes) attributes; }
-			set { attributes = (uint) value; }
+			set {
+				if (IsWindowsRuntimeProjection && (ushort) value != attributes)
+					throw new InvalidOperationException ();
+
+				attributes = (uint) value;
+			}
 		}
 
 		public TypeReference BaseType {
 			get { return base_type; }
 			set { base_type = value; }
+		}
+
+		public override string Name {
+			get { return base.Name; }
+			set {
+				if (IsWindowsRuntimeProjection && value != base.Name)
+					throw new InvalidOperationException ();
+
+				base.Name = value;
+			}
 		}
 
 		void ResolveLayout ()
@@ -119,14 +116,11 @@ namespace Mono.Cecil {
 				if (interfaces != null)
 					return interfaces.Count > 0;
 
-				if (HasImage)
-					return Module.Read (this, (type, reader) => reader.HasInterfaces (type));
-
-				return false;
+				return HasImage && Module.Read (this, (type, reader) => reader.HasInterfaces (type));
 			}
 		}
 
-		public Collection<InterfaceImpl> Interfaces {
+		public Collection<InterfaceImplementation> Interfaces {
 			get {
 				if (interfaces != null)
 					return interfaces;
@@ -134,7 +128,7 @@ namespace Mono.Cecil {
 				if (HasImage)
 					return Module.Read (ref interfaces, this, (type, reader) => reader.ReadInterfaces (type));
 
-				return interfaces = new Collection<InterfaceImpl> ();
+				return interfaces = new InterfaceImplementationCollection (this);
 			}
 		}
 
@@ -143,10 +137,7 @@ namespace Mono.Cecil {
 				if (nested_types != null)
 					return nested_types.Count > 0;
 
-				if (HasImage)
-					return Module.Read (this, (type, reader) => reader.HasNestedTypes (type));
-
-				return false;
+				return HasImage && Module.Read (this, (type, reader) => reader.HasNestedTypes (type));
 			}
 		}
 
@@ -167,10 +158,7 @@ namespace Mono.Cecil {
 				if (methods != null)
 					return methods.Count > 0;
 
-				if (HasImage)
-					return methods_range.Length > 0;
-
-				return false;
+				return HasImage && methods_range.Length > 0;
 			}
 		}
 
@@ -191,10 +179,7 @@ namespace Mono.Cecil {
 				if (fields != null)
 					return fields.Count > 0;
 
-				if (HasImage)
-					return fields_range.Length > 0;
-
-				return false;
+				return HasImage && fields_range.Length > 0;
 			}
 		}
 
@@ -215,10 +200,7 @@ namespace Mono.Cecil {
 				if (events != null)
 					return events.Count > 0;
 
-				if (HasImage)
-					return Module.Read (this, (type, reader) => reader.HasEvents (type));
-
-				return false;
+				return HasImage && Module.Read (this, (type, reader) => reader.HasEvents (type));
 			}
 		}
 
@@ -239,10 +221,7 @@ namespace Mono.Cecil {
 				if (properties != null)
 					return properties.Count > 0;
 
-				if (HasImage)
-					return Module.Read (this, (type, reader) => reader.HasProperties (type));
-
-				return false;
+				return HasImage && Module.Read (this, (type, reader) => reader.HasProperties (type));
 			}
 		}
 
@@ -465,6 +444,11 @@ namespace Mono.Cecil {
 			set { base.DeclaringType = value; }
 		}
 
+		internal new TypeDefinitionProjection WindowsRuntimeProjection {
+			get { return (TypeDefinitionProjection) projection; }
+			set { projection = value; }
+		}
+
 		public TypeDefinition (string @namespace, string name, TypeAttributes attributes)
 			: base (@namespace, name)
 		{
@@ -478,13 +462,115 @@ namespace Mono.Cecil {
 			this.BaseType = baseType;
 		}
 
+		protected override void ClearFullName ()
+		{
+			base.ClearFullName ();
+
+			if (!HasNestedTypes)
+				return;
+
+			var nested_types = this.NestedTypes;
+
+			for (int i = 0; i < nested_types.Count; i++)
+				nested_types [i].ClearFullName ();
+		}
+
 		public override TypeDefinition Resolve ()
 		{
 			return this;
 		}
 	}
 
-#if EXCLUDED_BY_TA
+	public sealed class InterfaceImplementation : ICustomAttributeProvider
+	{
+		internal TypeDefinition type;
+		internal MetadataToken token;
+
+		TypeReference interface_type;
+		Collection<CustomAttribute> custom_attributes;
+
+		public TypeReference InterfaceType {
+			get { return interface_type; }
+			set { interface_type = value; }
+		}
+
+		public bool HasCustomAttributes {
+			get {
+				if (custom_attributes != null)
+					return custom_attributes.Count > 0;
+
+				if (type == null)
+					return false;
+
+				return this.GetHasCustomAttributes (type.Module);
+			}
+		}
+
+		public Collection<CustomAttribute> CustomAttributes {
+			get {
+				if (type == null)
+					return custom_attributes = new Collection<CustomAttribute> ();
+
+				return custom_attributes ?? (this.GetCustomAttributes (ref custom_attributes, type.Module));
+			}
+		}
+
+		public MetadataToken MetadataToken {
+			get { return token; }
+			set { token = value; }
+		}
+
+		internal InterfaceImplementation (TypeReference interfaceType, MetadataToken token)
+		{
+			this.interface_type = interfaceType;
+			this.token = token;
+		}
+
+		public InterfaceImplementation (TypeReference interfaceType)
+		{
+			Mixin.CheckType (interfaceType, Mixin.Argument.interfaceType);
+
+			this.interface_type = interfaceType;
+			this.token = new MetadataToken (TokenType.InterfaceImpl);
+		}
+	}
+
+	class InterfaceImplementationCollection : Collection<InterfaceImplementation>
+	{
+		readonly TypeDefinition type;
+
+		internal InterfaceImplementationCollection (TypeDefinition type)
+		{
+			this.type = type;
+		}
+
+		internal InterfaceImplementationCollection (TypeDefinition type, int length)
+			: base (length)
+		{
+			this.type = type;
+		}
+
+		protected override void OnAdd (InterfaceImplementation item, int index)
+		{
+			item.type = type;
+		}
+
+		protected override void OnInsert (InterfaceImplementation item, int index)
+		{
+			item.type = type;
+		}
+
+		protected override void OnSet (InterfaceImplementation item, int index)
+		{
+			item.type = type;
+		}
+
+		protected override void OnRemove (InterfaceImplementation item, int index)
+		{
+			item.type = null;
+		}
+	}
+
 	static partial class Mixin {
 
 		public static TypeReference GetEnumUnderlyingType (this TypeDefinition self)

@@ -236,9 +236,9 @@ namespace Mono.Cecil.Tests {
 			Assert.IsNotNull (int_to_string);
 
 			var this_parameter_type = int_to_string.Body.ThisParameter.ParameterType;
-			Assert.IsTrue (this_parameter_type.IsPointer);
+			Assert.IsTrue (this_parameter_type.IsByReference);
 
-			var element_type = ((PointerType) this_parameter_type).ElementType;
+			var element_type = ((ByReferenceType) this_parameter_type).ElementType;
 			Assert.AreEqual (int32, element_type);
 		}
 
@@ -250,9 +250,9 @@ namespace Mono.Cecil.Tests {
 			Assert.IsNotNull (token_to_string);
 
 			var this_parameter_type = token_to_string.Body.ThisParameter.ParameterType;
-			Assert.IsTrue (this_parameter_type.IsPointer);
+			Assert.IsTrue (this_parameter_type.IsByReference);
 
-			var element_type = ((PointerType) this_parameter_type).ElementType;
+			var element_type = ((ByReferenceType) this_parameter_type).ElementType;
 			Assert.AreEqual (token, element_type);
 		}
 
@@ -279,6 +279,25 @@ namespace Mono.Cecil.Tests {
 				Assert.IsNotNull (method);
 				Assert.AreEqual (2, method.Body.MaxStackSize);
 			});
+		}
+
+		[Test]
+		public void BranchOutsideMethod ()
+		{
+			IgnoreOnMono ();
+
+			TestIL ("branch-out.il", module => {
+				var type = module.GetType ("Foo");
+				var method = type.GetMethod ("BranchOutside");
+
+				Assert.IsNotNull (method);
+				Assert.IsNotNull (method.Body);
+
+				var leave = method.Body.Instructions [0];
+				Assert.AreEqual (OpCodes.Leave, leave.OpCode);
+				Assert.IsNull (leave.Operand);
+				Assert.AreEqual ("IL_0000: leave", leave.ToString ());
+			}, verify: false);
 		}
 
 		[Test]
@@ -314,19 +333,6 @@ namespace Mono.Cecil.Tests {
 			method.Body = body;
 
 			Assert.AreEqual (body, method.Body);
-		}
-
-		static void AssertCode (string expected, MethodDefinition method)
-		{
-			Assert.IsTrue (method.HasBody);
-			Assert.IsNotNull (method.Body);
-
-			Assert.AreEqual (Normalize (expected), Normalize (Formatter.FormatMethodBody (method)));
-		}
-
-		static string Normalize (string str)
-		{
-			return str.Trim ().Replace ("\r\n", "\n");
 		}
 
 		[Test]
