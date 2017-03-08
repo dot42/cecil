@@ -752,7 +752,6 @@ namespace Mono.Cecil.PE {
 
 		int GetMetadataHeaderLength (string runtimeVersion)
 		{
-		    var versionLength = GetZeroTerminatedString(GetVersion()).Length;
 			return
 				// MetadataHeader
 				20 + GetZeroTerminatedStringLength (runtimeVersion)
@@ -769,24 +768,6 @@ namespace Mono.Cecil.PE {
 				//
 				+ (metadata.pdb_heap == null ? 0 : 16);
 		}
-
-        string GetVersion()
-        {
-            if (module.RuntimeVersion != null)
-                return module.RuntimeVersion;
-            switch (module.Runtime)
-            {
-                case TargetRuntime.Net_1_0:
-                    return "v1.0.3705";
-                case TargetRuntime.Net_1_1:
-                    return "v1.1.4322";
-                case TargetRuntime.Net_2_0:
-                    return "v2.0.50727";
-                case TargetRuntime.Net_4_0:
-                default:
-                    return "v4.0.30319";
-            }
-        }
 
 		int GetStrongNameLength ()
 		{

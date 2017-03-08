@@ -13,7 +13,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using SR = System.Reflection;
-using System.Threading;
 
 using Mono.Cecil.Cil;
 using Mono.Cecil.Metadata;

@@ -85,7 +85,7 @@ namespace Mono.Cecil {
 
 		internal CallSite ()
 		{
-			this.signature = new CallSiteMethodReference (this); // TA
+			this.signature = new MethodReference ();
 			this.signature.token = new MetadataToken (TokenType.Signature, 0);
 		}
 

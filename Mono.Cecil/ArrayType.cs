@@ -94,7 +94,7 @@ namespace Mono.Cecil {
 			get { return base.FullName + Suffix; }
 		}
 
-        /* Internal added by TA */ internal string Suffix {
+		/* Internal added by TA */ internal string Suffix {
 			get {
 				if (IsVector)
 					return "[]";

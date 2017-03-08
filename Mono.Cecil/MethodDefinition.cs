@@ -16,7 +16,7 @@ using RVA = System.UInt32;
 
 namespace Mono.Cecil {
 
-	public sealed class MethodDefinition : MethodReference, IMemberDefinition, ISecurityDeclarationProvider, ICustomDebugInformationProvider {
+	public sealed partial class MethodDefinition : MethodReference, IMemberDefinition, ISecurityDeclarationProvider, ICustomDebugInformationProvider {
 
 		ushort attributes;
 		ushort impl_attributes;

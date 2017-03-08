@@ -12,7 +12,7 @@ using System;
 
 namespace Mono.Cecil {
 
-	public abstract partial class MemberReference : IMetadataTokenProvider {
+	public abstract partial /* TA */ class MemberReference : IMetadataTokenProvider {
 
 		string name;
 		TypeReference declaring_type;

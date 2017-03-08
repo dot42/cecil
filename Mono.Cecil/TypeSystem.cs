@@ -23,7 +23,7 @@ namespace Mono.Cecil {
 			{
 			}
 
-		    public override TypeReference LookupType (string @namespace, string name)
+			public override TypeReference LookupType (string @namespace, string name)
 			{
 				var type = LookupTypeDefinition (@namespace, name) ?? LookupTypeForwarded (@namespace, name);
 				if (type != null)
@@ -85,7 +85,7 @@ namespace Mono.Cecil {
 			{
 			}
 
-		    public override TypeReference LookupType (string @namespace, string name)
+			public override TypeReference LookupType (string @namespace, string name)
 			{
 				return CreateTypeReference (@namespace, name);
 			}

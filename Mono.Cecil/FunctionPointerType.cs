@@ -93,7 +93,7 @@ namespace Mono.Cecil {
 		public FunctionPointerType ()
 			: base (null)
 		{
-            this.function = new FunctionPointerTypeMethodReference(this); // TA
+			this.function = new MethodReference ();
 			this.function.Name = "method";
 			this.etype = MD.ElementType.FnPtr;
 		}

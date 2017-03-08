@@ -257,7 +257,7 @@ namespace Mono.Security.Cryptography {
             foreach (byte b in input)
             {
                 sb.Append(b.ToString("X2", CultureInfo.InvariantCulture));
-            }
+	}
             return sb.ToString();
         }
 

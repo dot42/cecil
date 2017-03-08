@@ -91,7 +91,8 @@ namespace Mono.Cecil.Cil {
 	public struct OpCode : IEquatable<OpCode> {
 
 		readonly byte op1;
-		readonly byte op2;		readonly byte code;
+		readonly byte op2;
+		readonly byte code;
 		readonly byte flow_control;
 		readonly byte opcode_type;
 		readonly byte operand_type;
@@ -102,8 +103,9 @@ namespace Mono.Cecil.Cil {
 			get { return OpCodeNames.names [(int) Code]; }
 		}
 
-	    public readonly byte Size;
-	    public readonly byte OperandSize;
+		public int Size {
+			get { return op1 == 0xff ? 1 : 2; }
+		}
 
 		public byte Op1 {
 			get { return op1; }
@@ -152,43 +154,6 @@ namespace Mono.Cecil.Cil {
 			this.operand_type = (byte) ((y >> 8) & 0xff);
 			this.stack_behavior_pop = (byte) ((y >> 16) & 0xff);
 			this.stack_behavior_push = (byte) ((y >> 24) & 0xff);
-
-		    this.Size = (byte) ((op1 == 0xFF) ? 1 : 2);
-
-            switch ((OperandType)operand_type)
-            {
-                case OperandType.InlineSwitch:
-                    OperandSize = 0; // Depends on actual operand
-                    break;
-                case OperandType.InlineI8:
-                case OperandType.InlineR:
-                    OperandSize = 8;
-                    break;
-                case OperandType.InlineBrTarget:
-                case OperandType.InlineField:
-                case OperandType.InlineI:
-                case OperandType.InlineMethod:
-                case OperandType.InlineString:
-                case OperandType.InlineTok:
-                case OperandType.InlineType:
-                case OperandType.ShortInlineR:
-                case OperandType.InlineSig:
-                    OperandSize = 4;
-                    break;
-                case OperandType.InlineArg:
-                case OperandType.InlineVar:
-                    OperandSize = 2;
-                    break;
-                case OperandType.ShortInlineBrTarget:
-                case OperandType.ShortInlineI:
-                case OperandType.ShortInlineArg:
-                case OperandType.ShortInlineVar:
-                    OperandSize = 1;
-                    break;
-                default:
-                    OperandSize = 0;
-                    break;
-            }
 
 			if (op1 == 0xff)
 				OpCodes.OneByteOpCode [op2] = this;

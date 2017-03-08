@@ -68,11 +68,7 @@ namespace Mono.Cecil.Pdb
 			int startOffset,
 			int endOffset)
 		{
-            if (name != null)
-            {
-                m_writer.DefineLocalVariable2(name, (int) attributes, sigToken, (int) addrKind, addr1, addr2, addr3,
-                                              startOffset, endOffset);
-            }
+			m_writer.DefineLocalVariable2 (name, (int)attributes, sigToken, (int)addrKind, addr1, addr2, addr3, startOffset, endOffset);
 		}
 
 		public void Close ()

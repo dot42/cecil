@@ -201,17 +201,4 @@ namespace Mono.Cecil.Mdb {
 			return (entry.MethodFlags & MethodEntry.Flags.EndInfoIncluded) != 0;
 		}
 	}
-
-	static class MethodEntryExtensions {
-
-		public static bool HasColumnInfo (this MethodEntry entry)
-		{
-			return (entry.MethodFlags & MethodEntry.Flags.ColumnsInfoIncluded) != 0;
-		}
-
-		public static bool HasEndInfo (this MethodEntry entry)
-		{
-			return (entry.MethodFlags & MethodEntry.Flags.EndInfoIncluded) != 0;
-		}
-	}
 }

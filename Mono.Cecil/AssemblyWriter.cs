@@ -1302,10 +1302,10 @@ namespace Mono.Cecil {
 
 		void AttachFieldsToken (TypeDefinition type)
 		{
-			var intfImpls = type.Interfaces;
-			//type.fields_range.Length = (uint) fields.Count;
-			for (int i = 0; i < intfImpls.Count; i++)
-                intfImpls[i].MetadataToken = new MetadataToken(TokenType.InterfaceImpl, intfImpl_rid++);
+			var fields = type.Fields;
+			type.fields_range.Length = (uint) fields.Count;
+			for (int i = 0; i < fields.Count; i++)
+				fields [i].token = new MetadataToken (TokenType.Field, field_rid++);
 		}
 
 		void AttachMethodsToken (TypeDefinition type)
@@ -1542,14 +1542,6 @@ namespace Mono.Cecil {
 					AddCustomAttributes (iface_impl);
 			}
 		}
-
-        void AddInterfaceImpl(BlobIndex type_rid, InterfaceImpl intfImpl)
-        {
-            iface_impl_table.AddRow(new InterfaceImplRow(type_rid, MakeCodedRID(GetTypeToken(intfImpl.Interface), CodedIndex.TypeDefOrRef)));            
-
-            if (intfImpl.HasCustomAttributes) 
-                AddCustomAttributes(intfImpl);
-        }
 
 		void AddLayoutInfo (TypeDefinition type)
 		{

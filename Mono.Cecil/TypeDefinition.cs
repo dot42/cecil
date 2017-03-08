@@ -603,5 +603,4 @@ namespace Mono.Cecil {
 			return null;
 		}
 	}
-#endif
 }

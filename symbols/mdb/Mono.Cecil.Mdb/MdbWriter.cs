@@ -110,7 +110,6 @@ namespace Mono.Cecil.Mdb {
 					offsets [i],
 					file.CompilationUnit.SourceFile,
 					start_rows [i],
-					end_rows [i],
 					start_cols [i],
 					end_rows [i],
 					end_cols [i],

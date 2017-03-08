@@ -33,7 +33,8 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>mono.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -41,7 +42,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Dot42\AssemblyInfo.cs" />
+    <Compile Include="Dot42\VariableDefinition.Partial.cs" />
     <Compile Include="Dot42\GenericParameter.Partial.cs" />
+    <Compile Include="Dot42\Extensions.cs" />
     <Compile Include="Dot42\ParameterDefinition.Partial.cs" />
     <Compile Include="Dot42\FieldDefinition.Partial.cs" />
     <Compile Include="Dot42\MethodDefinition.Partial.cs" />
@@ -60,6 +63,7 @@
     <Compile Include="Mono.Cecil.Cil\MethodBody.cs" />
     <Compile Include="Mono.Cecil.Cil\OpCode.cs" />
     <Compile Include="Mono.Cecil.Cil\OpCodes.cs" />
+    <Compile Include="Mono.Cecil.Cil\PortablePdb.cs" />
     <Compile Include="Mono.Cecil.Cil\SequencePoint.cs" />
     <Compile Include="Mono.Cecil.Cil\Symbols.cs" />
     <Compile Include="Mono.Cecil.Cil\VariableDefinition.cs" />
@@ -71,6 +75,7 @@
     <Compile Include="Mono.Cecil.Metadata\GuidHeap.cs" />
     <Compile Include="Mono.Cecil.Metadata\Heap.cs" />
     <Compile Include="Mono.Cecil.Metadata\MetadataToken.cs" />
+    <Compile Include="Mono.Cecil.Metadata\PdbHeap.cs" />
     <Compile Include="Mono.Cecil.Metadata\Row.cs" />
     <Compile Include="Mono.Cecil.Metadata\StringHeap.cs" />
     <Compile Include="Mono.Cecil.Metadata\TableHeap.cs" />
@@ -99,7 +104,7 @@
     <Compile Include="Mono.Cecil\AssemblyWriter.cs" />
     <Compile Include="Mono.Cecil\BaseAssemblyResolver.cs" />
     <Compile Include="Mono.Cecil\CallSite.cs" />
-    <Compile Include="Mono.Cecil\CallSiteMethodReference.cs" />
+    <Compile Include="Mono.Cecil\Consts.cs" />
     <Compile Include="Mono.Cecil\CustomAttribute.cs" />
     <Compile Include="Mono.Cecil\DefaultAssemblyResolver.cs" />
     <Compile Include="Mono.Cecil\EmbeddedResource.cs" />
@@ -112,7 +117,6 @@
     <Compile Include="Mono.Cecil\FieldReference.cs" />
     <Compile Include="Mono.Cecil\FileAttributes.cs" />
     <Compile Include="Mono.Cecil\FunctionPointerType.cs" />
-    <Compile Include="Mono.Cecil\FunctionPointerTypeMethodReference.cs" />
     <Compile Include="Mono.Cecil\GenericInstanceMethod.cs" />
     <Compile Include="Mono.Cecil\GenericInstanceType.cs" />
     <Compile Include="Mono.Cecil\GenericParameter.cs" />
@@ -127,7 +131,6 @@
     <Compile Include="Mono.Cecil\IMetadataTokenProvider.cs" />
     <Compile Include="Mono.Cecil\IMethodSignature.cs" />
     <Compile Include="Mono.Cecil\Import.cs" />
-    <Compile Include="Mono.Cecil\InterfaceImpl.cs" />
     <Compile Include="Mono.Cecil\LinkedResource.cs" />
     <Compile Include="Mono.Cecil\ManifestResourceAttributes.cs" />
     <Compile Include="Mono.Cecil\MarshalInfo.cs" />
@@ -164,6 +167,7 @@
     <Compile Include="Mono.Cecil\SecurityDeclaration.cs" />
     <Compile Include="Mono.Cecil\SentinelType.cs" />
     <Compile Include="Mono.Cecil\TargetRuntime.cs" />
+    <Compile Include="Mono.Cecil\Treatments.cs" />
     <Compile Include="Mono.Cecil\TypeAttributes.cs" />
     <Compile Include="Mono.Cecil\TypeDefinition.cs" />
     <Compile Include="Mono.Cecil\TypeDefinitionCollection.cs" />
@@ -172,13 +176,16 @@
     <Compile Include="Mono.Cecil\TypeSpecification.cs" />
     <Compile Include="Mono.Cecil\TypeSystem.cs" />
     <Compile Include="Mono.Cecil\VariantType.cs" />
+    <Compile Include="Mono.Cecil\WindowsRuntimeProjections.cs" />
     <Compile Include="Mono.Collections.Generic\Collection.cs" />
     <Compile Include="Mono.Collections.Generic\ReadOnlyCollection.cs" />
     <Compile Include="Mono.Security.Cryptography\CryptoConvert.cs" />
     <Compile Include="Mono.Security.Cryptography\CryptoService.cs" />
-    <Compile Include="Mono\Actions.cs" />
+    <Compile Include="Mono\Disposable.cs" />
     <Compile Include="Mono\Empty.cs" />
-    <Compile Include="Mono\Funcs.cs" />
+    <Compile Include="Mono\Type.cs" />
+    <Compile Include="ProjectInfo.cs" />
+    <Compile Include="rocks\Mono.Cecil.Rocks\DocCommentId.cs" />
     <Compile Include="rocks\Mono.Cecil.Rocks\Functional.cs" />
     <Compile Include="rocks\Mono.Cecil.Rocks\ILParser.cs" />
     <Compile Include="rocks\Mono.Cecil.Rocks\MethodBodyRocks.cs" />
@@ -188,6 +195,13 @@
     <Compile Include="rocks\Mono.Cecil.Rocks\SecurityDeclarationRocks.cs" />
     <Compile Include="rocks\Mono.Cecil.Rocks\TypeDefinitionRocks.cs" />
     <Compile Include="rocks\Mono.Cecil.Rocks\TypeReferenceRocks.cs" />
+    <Compile Include="symbols\mdb\Mono.Cecil.Mdb\MdbReader.cs" />
+    <Compile Include="symbols\mdb\Mono.Cecil.Mdb\MdbWriter.cs" />
+    <Compile Include="symbols\mdb\Mono.CompilerServices.SymbolWriter\MonoSymbolFile.cs" />
+    <Compile Include="symbols\mdb\Mono.CompilerServices.SymbolWriter\MonoSymbolTable.cs" />
+    <Compile Include="symbols\mdb\Mono.CompilerServices.SymbolWriter\MonoSymbolWriter.cs" />
+    <Compile Include="symbols\mdb\Mono.CompilerServices.SymbolWriter\SourceMethodBuilder.cs" />
+    <Compile Include="symbols\mdb\Mono.CompilerServices.SymbolWriter\SymbolWriterImpl.cs" />
     <Compile Include="symbols\pdb\Microsoft.Cci.Pdb\BitAccess.cs" />
     <Compile Include="symbols\pdb\Microsoft.Cci.Pdb\BitSet.cs" />
     <Compile Include="symbols\pdb\Microsoft.Cci.Pdb\CvInfo.cs" />
@@ -216,15 +230,20 @@
     <Compile Include="symbols\pdb\Mono.Cecil.Pdb\ISymUnmanagedDocumentWriter.cs" />
     <Compile Include="symbols\pdb\Mono.Cecil.Pdb\ISymUnmanagedWriter2.cs" />
     <Compile Include="symbols\pdb\Mono.Cecil.Pdb\ModuleMetadata.cs" />
+    <Compile Include="symbols\pdb\Mono.Cecil.Pdb\NativePdbReader.cs" />
+    <Compile Include="symbols\pdb\Mono.Cecil.Pdb\NativePdbWriter.cs" />
     <Compile Include="symbols\pdb\Mono.Cecil.Pdb\PdbHelper.cs" />
-    <Compile Include="symbols\pdb\Mono.Cecil.Pdb\PdbReader.cs" />
-    <Compile Include="symbols\pdb\Mono.Cecil.Pdb\PdbWriter.cs" />
     <Compile Include="symbols\pdb\Mono.Cecil.Pdb\SymDocumentWriter.cs" />
     <Compile Include="symbols\pdb\Mono.Cecil.Pdb\SymWriter.cs" />
+    <Compile Include="System.Security.Cryptography\SHA1Managed.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="mono.snk" />
+    <None Include="cecil.snk" />
+    <None Include="README.md" />
     <None Include="symbols\pdb\Microsoft.Cci.Pdb\LICENSE" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="LICENSE.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

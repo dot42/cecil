@@ -1,4 +1,5 @@
-﻿using Mono.Cecil.Pdb;
+﻿using Mono.Cecil;
+using Mono.Cecil.Pdb;
 
 namespace TallComponents.Dot42
 {
@@ -6,7 +7,7 @@ namespace TallComponents.Dot42
     {
         public static string GetPdbFileName(string assemblyFileName)
         {
-            return PdbHelper.GetPdbFileName(assemblyFileName);
+            return Mixin.GetPdbFileName(assemblyFileName);
         }
     }
 }

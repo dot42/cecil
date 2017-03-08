@@ -62,18 +62,35 @@ namespace Mono.Cecil.Cil {
 		public int GetSize ()
 		{
 			int size = opcode.Size;
-            if (opcode.OperandType == OperandType.InlineSwitch)
-            {
-				size += (1 + ((Instruction []) operand).Length) * 4;
-            }
-            else
-            {
-                size += opcode.OperandSize;
-            }
 
-			return size;
+			switch (opcode.OperandType) {
+			case OperandType.InlineSwitch:
+				return size + (1 + ((Instruction []) operand).Length) * 4;
+			case OperandType.InlineI8:
+			case OperandType.InlineR:
+				return size + 8;
+			case OperandType.InlineBrTarget:
+			case OperandType.InlineField:
+			case OperandType.InlineI:
+			case OperandType.InlineMethod:
+			case OperandType.InlineString:
+			case OperandType.InlineTok:
+			case OperandType.InlineType:
+			case OperandType.ShortInlineR:
+			case OperandType.InlineSig:
+				return size + 4;
+			case OperandType.InlineArg:
+			case OperandType.InlineVar:
+				return size + 2;
+			case OperandType.ShortInlineBrTarget:
+			case OperandType.ShortInlineI:
+			case OperandType.ShortInlineArg:
+			case OperandType.ShortInlineVar:
+				return size + 1;
+			default:
+				return size;
+			}
 		}
-
 
 		public override string ToString ()
 		{

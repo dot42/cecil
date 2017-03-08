@@ -106,16 +106,6 @@ namespace Mono.Cecil.Cil {
 			return new ParameterDefinition (parameter_type, method);
 		}
 
-		static ParameterDefinition CreateThisParameter (MethodDefinition method)
-		{
-			var declaring_type = method.DeclaringType;
-			var type = declaring_type.IsValueType || declaring_type.IsPrimitive
-				? new PointerType (declaring_type)
-				: declaring_type as TypeReference;
-
-			return new ParameterDefinition (type, method);
-		}
-
 		public MethodBody (MethodDefinition method)
 		{
 			this.method = method;

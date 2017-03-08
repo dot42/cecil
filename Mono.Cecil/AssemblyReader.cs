@@ -88,10 +88,6 @@ namespace Mono.Cecil {
 			if (parameters.ReadingMode == ReadingMode.Immediate)
 				module.MetadataSystem.Clear ();
 
-			reader.ReadModule ();
-
-			ReadSymbols (module, parameters);
-
 			return module;
 		}
 
@@ -1274,8 +1270,7 @@ namespace Mono.Cecil {
 
 		void AddInterfaceMapping (uint type, Row<uint, MetadataToken> @interface)
 		{
-            var implToken = new MetadataToken(TokenType.InterfaceImpl, interfaceImplRid);
-			metadata.SetInterfaceMapping (type, AddMapping (metadata.Interfaces, type, new Row<MetadataToken, MetadataToken>(implToken, @interface)));
+			metadata.SetInterfaceMapping (type, AddMapping (metadata.Interfaces, type, @interface));
 		}
 
 		public Collection<FieldDefinition> ReadFields (TypeDefinition type)
@@ -2570,7 +2565,7 @@ namespace Mono.Cecil {
 			var custom_attributes = new Collection<CustomAttribute> ((int) length);
 			ReadCustomAttributeRange (new Range (1, length), custom_attributes);
 
-			return (int) size;
+			return custom_attributes;
 		}
 
 		public byte [] ReadCustomAttributeBlob (uint signature)

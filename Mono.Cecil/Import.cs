@@ -523,9 +523,9 @@ namespace Mono.Cecil {
 			if (module.TryGetAssemblyNameReference (name, out reference))
 				return reference;
 
-            // TA: Added for winrt support.
+            // TA: Added for winrt support. TODO: check if this is still needed.
             if (name.Name == "mscorlib")
-                return (AssemblyNameReference) module.TypeSystem.Corlib;
+                return (AssemblyNameReference) module.TypeSystem.CoreLibrary;
 
 			reference = new AssemblyNameReference (name.Name, name.Version) {
 				Culture = name.Culture,
