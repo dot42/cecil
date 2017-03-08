@@ -8,7 +8,7 @@
     <ProjectGuid>{13F162A6-BB55-40B6-BB77-22D5C0B4A386}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>TallApplications</RootNamespace>
-    <AssemblyName>Cecil</AssemblyName>
+    <AssemblyName>Mono.Cecil</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
